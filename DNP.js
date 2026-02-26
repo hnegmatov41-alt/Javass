@@ -4,81 +4,84 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+const N = 40; // Количество сегментов
+const elems = [];
+const pointer = { x: canvas.width / 2, y: canvas.height / 2 };
 
-// Отслеживание мыши
+// 1. Инициализация (как на скрине)
+for (let i = 0; i < N; i++) {
+    elems[i] = { x: pointer.x, y: pointer.y, angle: 0 };
+}
+
 window.addEventListener('mousemove', (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
 });
-
-// Класс для сегмента тела (позвоночника)
-class Segment {
-    constructor(x, y, len, angle) {
-        this.x = x;
-        this.y = y;
-        this.len = len;
-        this.angle = angle;
-        this.nextX = x + Math.cos(angle) * len;
-        this.nextY = y + Math.sin(angle) * len;
-    }
-
-    follow(targetX, targetY) {
-        const dx = targetX - this.x;
-        const dy = targetY - this.y;
-        this.angle = Math.atan2(dy, dx);
-        this.x = targetX - Math.cos(this.angle) * this.len;
-        this.y = targetY - Math.sin(this.angle) * this.len;
-    }
-
-    update() {
-        this.nextX = this.x + Math.cos(this.angle) * this.len;
-        this.nextY = this.y + Math.sin(this.angle) * this.len;
-    }
-
-    show(i) {
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.nextX, this.nextY);
-        ctx.stroke();
-
-        // Рисуем "ребра" как на картинке
-        ctx.save();
-        ctx.translate(this.nextX, this.nextY);
-        ctx.rotate(this.angle + Math.PI / 2);
-        ctx.beginPath();
-        ctx.moveTo(-15 + i, 0); // Ребра становятся короче к хвосту
-        ctx.lineTo(15 - i, 0);
-        ctx.stroke();
-        ctx.restore();
-    }
-}
-
-// Создаем "существо" из 20 сегментов
-const segments = [];
-for (let i = 0; i < 20; i++) {
-    segments.push(new Segment(100, 100, 20, 0));
-}
 
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Первый сегмент следует за мышью
-    segments[0].follow(mouse.x, mouse.y);
-    segments[0].update();
-    segments[0].show(0);
+    // Цвет линий (темно-серый, почти черный, как тушь)
+    ctx.strokeStyle = "rgba(30, 30, 30, 0.85)";
+    ctx.fillStyle = "rgba(30, 30, 30, 0.9)";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
 
-    // Остальные следуют друг за другом
-    for (let i = 1; i < segments.length; i++) {
-        segments[i].follow(segments[i - 1].x, segments[i - 1].y);
-        segments[i].update();
-        segments[i].show(i);
+    // Движение головы за мышью
+    elems[0].x = pointer.x;
+    elems[0].y = pointer.y;
+
+    for (let i = 1; i < N; i++) {
+        const dx = elems[i - 1].x - elems[i].x;
+        const dy = elems[i - 1].y - elems[i].y;
+        elems[i].angle = Math.atan2(dy, dx);
+        
+        const dist = 14; // Расстояние между звеньями
+        elems[i].x = elems[i - 1].x - Math.cos(elems[i].angle) * dist;
+        elems[i].y = elems[i - 1].y - Math.sin(elems[i].angle) * dist;
+
+        // РИСОВАНИЕ (Логика из вашего изображения)
+        ctx.save();
+        ctx.translate(elems[i].x, elems[i].y);
+        ctx.rotate(elems[i].angle);
+
+        if (i === 1) { 
+            // Cabeza (Голова)
+            ctx.beginPath();
+            ctx.ellipse(5, 0, 18, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (i === 8 || i === 14) { 
+            // Aletas (Плавники) - длинные изогнутые линии
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            // Верхний плавник
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(10, -70, -60, -110);
+            // Нижний плавник
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(10, 70, -60, 110);
+            ctx.stroke();
+        } else {
+            // Espina (Шипы/Позвоночник)
+            const thickness = Math.max(1, 25 - i * 0.6); // Сужается к хвосту
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, -thickness);
+            ctx.lineTo(0, thickness);
+            // Маленький изгиб для стиля аниме
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-10, thickness + 5, -20, thickness + 15);
+            ctx.stroke();
+        }
+        ctx.restore();
     }
 
     requestAnimationFrame(animate);
 }
 
 animate();
+
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
