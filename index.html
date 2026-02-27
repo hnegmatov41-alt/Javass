@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐍 Змейка - 3 режима управления</title>
+    <title>🐍 Змейка - Турбо-режим</title>
     <style>
-        /* Полный экран */
+        /* Полный экран с учетом навигационных кнопок */
         * {
             margin: 0;
             padding: 0;
@@ -39,8 +39,13 @@
             width: 100%;
             max-width: 500px;
             margin: 0 15px;
+            /* Адаптация под навигационные кнопки телефона */
             padding-top: max(20px, env(safe-area-inset-top));
             padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+            /* Защита от навигационных кнопок */
+            margin-bottom: env(safe-area-inset-bottom);
         }
         
         h1 {
@@ -59,6 +64,67 @@
             margin: 15px 0;
             font-size: 20px;
             font-weight: bold;
+        }
+        
+        /* ===== НОВЫЙ БЛОК СКОРОСТИ ===== */
+        .speed-control {
+            background: #e0e0e0;
+            border-radius: 50px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .speed-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a5568;
+            min-width: 80px;
+        }
+        
+        .speed-buttons {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .speed-btn {
+            background: white;
+            border: 2px solid #4a5568;
+            color: #4a5568;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 60px;
+            touch-action: none;
+        }
+        
+        .speed-btn.active {
+            background: #4a5568;
+            color: white;
+        }
+        
+        .speed-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .speed-value {
+            background: #4a5568;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 70px;
+            text-align: center;
         }
         
         .canvas-wrapper {
@@ -97,13 +163,14 @@
             font-weight: bold;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
             min-width: 80px;
+            touch-action: none;
         }
         
         .action-btn:active {
             transform: scale(0.95);
         }
         
-        /* ===== НОВЫЙ РАЗДЕЛ - ВЫБОР РЕЖИМА УПРАВЛЕНИЯ ===== */
+        /* Режимы управления */
         .mode-selector {
             background: #f0f0f0;
             border-radius: 50px;
@@ -172,7 +239,7 @@
             background: #2d3748;
         }
         
-        /* РЕЖИМ 2: Джойстик (4 большие кнопки) */
+        /* РЕЖИМ 2: Джойстик */
         .joystick-controls {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -200,11 +267,11 @@
             background: #2d3748;
         }
         
-        /* РЕЖИМ 3: Свайп-зона */
+        /* РЕЖИМ 3: Свайп */
         .swipe-controls {
             background: #4a5568;
             border-radius: 30px;
-            padding: 40px 20px;
+            padding: 30px 20px;
             max-width: 280px;
             margin: 0 auto;
             text-align: center;
@@ -215,7 +282,7 @@
             background: #2d3748;
             border-radius: 20px;
             padding: 30px 20px;
-            margin: 10px 0;
+            margin: 15px 0;
             font-size: 24px;
             touch-action: none;
         }
@@ -242,6 +309,29 @@
             color: #666;
             margin-top: 15px;
             font-size: 14px;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Адаптация под разные телефоны */
+        @media (max-width: 380px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .speed-control {
+                padding: 12px 15px;
+            }
+            
+            .speed-btn {
+                padding: 8px 10px;
+                font-size: 14px;
+                min-width: 50px;
+            }
+            
+            .direction-btn, .joystick-btn {
+                padding: 20px 0;
+                font-size: 28px;
+            }
         }
     </style>
 </head>
@@ -254,6 +344,18 @@
             <span>🏆 <span id="highScore">0</span></span>
         </div>
 
+        <!-- ===== НОВЫЙ БЛОК УПРАВЛЕНИЯ СКОРОСТЬЮ ===== -->
+        <div class="speed-control">
+            <span class="speed-label">⚡ Скорость:</span>
+            <div class="speed-buttons">
+                <button class="speed-btn" id="speedSlow">🐢 Медл</button>
+                <button class="speed-btn active" id="speedNormal">⚡ Норм</button>
+                <button class="speed-btn" id="speedFast">🚀 Быстр</button>
+                <button class="speed-btn" id="speedTurbo">💥 Турбо</button>
+            </div>
+            <span class="speed-value" id="speedDisplay">200 ms</span>
+        </div>
+
         <div class="canvas-wrapper">
             <canvas id="gameCanvas" width="400" height="400"></canvas>
         </div>
@@ -264,7 +366,7 @@
             <button class="action-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <!-- ===== НОВЫЙ РАЗДЕЛ - ВЫБОР РЕЖИМА ===== -->
+        <!-- Выбор режима управления -->
         <div class="mode-selector">
             <button class="mode-btn active" id="modeClassic">🔘 Кнопки</button>
             <button class="mode-btn" id="modeJoystick">🕹️ Джойстик</button>
@@ -283,7 +385,7 @@
                 <button class="direction-btn" id="rightBtn">➡️</button>
             </div>
 
-            <!-- РЕЖИМ 2: Джойстик (4 большие кнопки) -->
+            <!-- РЕЖИМ 2: Джойстик -->
             <div id="joystickControls" class="joystick-controls hidden">
                 <button class="joystick-btn" id="joyUpBtn">⬆️</button>
                 <button class="joystick-btn" id="joyRightBtn">➡️</button>
@@ -291,7 +393,7 @@
                 <button class="joystick-btn" id="joyLeftBtn">⬅️</button>
             </div>
 
-            <!-- РЕЖИМ 3: Свайп-зона -->
+            <!-- РЕЖИМ 3: Свайп -->
             <div id="swipeControls" class="swipe-controls hidden">
                 <div class="swipe-hint">Проведи пальцем</div>
                 <div class="swipe-area" id="swipeArea">
@@ -305,7 +407,7 @@
         </div>
 
         <div class="instructions">
-            🔄 Меняй режим в зависимости от того, как удобно играть
+            🔄 Меняй скорость и режим под себя
         </div>
     </div>
 
@@ -324,6 +426,15 @@
         let gamePaused = false;
         let gameInterval;
         
+        // Скорость игры (в миллисекундах)
+        let currentSpeed = 200; // нормальная скорость
+        const speedSettings = {
+            slow: 300,    // медленно
+            normal: 200,  // нормально
+            fast: 120,    // быстро
+            turbo: 70     // турбо!
+        };
+        
         // Счет
         const scoreSpan = document.getElementById('score');
         const highScoreSpan = document.getElementById('highScore');
@@ -331,7 +442,7 @@
         highScoreSpan.textContent = highScore;
 
         // Текущий режим
-        let currentMode = 'classic'; // classic, joystick, swipe
+        let currentMode = 'classic';
 
         // Создание еды
         function createFood() {
@@ -444,6 +555,28 @@
             draw();
         }
 
+        // ===== НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ СКОРОСТИ =====
+        function setSpeed(speedType) {
+            // Обновляем скорость
+            currentSpeed = speedSettings[speedType];
+            
+            // Обновляем отображение
+            const speedDisplay = document.getElementById('speedDisplay');
+            speedDisplay.textContent = currentSpeed + ' ms';
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('speed' + speedType.charAt(0).toUpperCase() + speedType.slice(1)).classList.add('active');
+            
+            // Перезапускаем интервал, если игра запущена
+            if (gameRunning && !gamePaused) {
+                clearInterval(gameInterval);
+                gameInterval = setInterval(move, currentSpeed);
+            }
+        }
+
         function gameOver() {
             gameRunning = false;
             clearInterval(gameInterval);
@@ -481,7 +614,7 @@
             gamePaused = false;
             
             if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(move, 200);
+            gameInterval = setInterval(move, currentSpeed);
             draw();
         }
 
@@ -527,7 +660,6 @@
             // Показываем направление в свайп-режиме
             if (currentMode === 'swipe') {
                 const hint = document.getElementById('swipeDirection');
-                const arrows = ['⬆️', '⬇️', '⬅️', '➡️'];
                 if (x === 0 && y === -1) hint.textContent = '⬆️ Вверх';
                 else if (x === 0 && y === 1) hint.textContent = '⬇️ Вниз';
                 else if (x === -1 && y === 0) hint.textContent = '⬅️ Влево';
@@ -539,17 +671,14 @@
         function switchMode(mode) {
             currentMode = mode;
             
-            // Обновляем классы кнопок
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Прячем все контролы
             document.getElementById('classicControls').classList.add('hidden');
             document.getElementById('joystickControls').classList.add('hidden');
             document.getElementById('swipeControls').classList.add('hidden');
             
-            // Показываем нужный режим
             if (mode === 'classic') {
                 document.getElementById('modeClassic').classList.add('active');
                 document.getElementById('classicControls').classList.remove('hidden');
@@ -563,6 +692,24 @@
         }
 
         // ========== НАСТРОЙКА УПРАВЛЕНИЯ ==========
+        
+        // Кнопки скорости
+        document.getElementById('speedSlow').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setSpeed('slow');
+        });
+        document.getElementById('speedNormal').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setSpeed('normal');
+        });
+        document.getElementById('speedFast').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setSpeed('fast');
+        });
+        document.getElementById('speedTurbo').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setSpeed('turbo');
+        });
         
         // РЕЖИМ 1: Классические кнопки
         document.getElementById('upBtn').addEventListener('touchstart', (e) => {
@@ -623,17 +770,17 @@
             const diffY = touchStart.y - touchEnd.y;
             
             if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
-                if (diffX > 0) setDirection(-1, 0); // Свайп влево
-                else setDirection(1, 0); // Свайп вправо
+                if (diffX > 0) setDirection(-1, 0);
+                else setDirection(1, 0);
             } else if (Math.abs(diffY) > 30) {
-                if (diffY > 0) setDirection(0, -1); // Свайп вверх
-                else setDirection(0, 1); // Свайп вниз
+                if (diffY > 0) setDirection(0, -1);
+                else setDirection(0, 1);
             }
             
             touchStart = {x: 0, y: 0};
         });
 
-        // Клавиатура для всех режимов
+        // Клавиатура
         document.addEventListener('keydown', (e) => {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
@@ -674,7 +821,7 @@
             switchMode('swipe');
         });
 
-        // Блокировка всех жестов на странице
+        // Блокировка всех жестов
         document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
         document.body.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
         document.addEventListener('contextmenu', (e) => e.preventDefault());
