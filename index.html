@@ -2,106 +2,181 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Змейка - Исправленная версия</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🐍 Змейка - Полноэкранный режим</title>
     <style>
+        /* Абсолютно полный экран */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
+        
+        /* Занимаем весь экран */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Убираем скролл полностью */
+            position: fixed; /* Фиксируем позицию */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif;
-            padding: 10px;
+            padding: 0;
+            touch-action: none; /* Полностью отключаем все жесты браузера */
+            -webkit-overflow-scrolling: none;
         }
+        
         .game-container {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 30px;
             padding: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
             width: 100%;
+            max-width: 500px;
+            margin: 0 15px;
+            /* Защита от выезда под шторку */
+            position: relative;
+            z-index: 10;
+            /* Адаптация под безопасные зоны */
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
         }
+        
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
+            font-size: clamp(24px, 8vw, 36px);
+            margin-bottom: 10px;
+            font-weight: 800;
         }
+        
         .stats {
             display: flex;
             justify-content: space-between;
             background: #f0f0f0;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .score, .high-score {
-            font-size: 18px;
+            padding: 15px 20px;
+            border-radius: 50px;
+            margin: 15px 0;
+            font-size: clamp(16px, 4vw, 20px);
             font-weight: bold;
         }
+        
         .canvas-wrapper {
             display: flex;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
+            /* Защита canvas от жестов */
+            touch-action: none;
         }
+        
         canvas {
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
             height: auto;
+            aspect-ratio: 1/1;
             border: 3px solid #4a5568;
-            border-radius: 10px;
+            border-radius: 20px;
             background: #fff;
+            touch-action: none; /* Отключает все жесты на canvas */
+            -webkit-touch-callout: none;
+            pointer-events: auto;
         }
+        
         .control-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
-            flex-wrap: wrap;
             margin: 20px 0;
+            touch-action: none;
         }
+        
         .action-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 25px;
+            padding: 15px 10px;
+            font-size: clamp(14px, 4vw, 18px);
+            border-radius: 40px;
             cursor: pointer;
             flex: 1;
-            min-width: 100px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            -webkit-touch-callout: none;
+            touch-action: none;
+            min-width: 80px;
         }
+        
         .action-btn:active {
             transform: scale(0.95);
         }
+        
+        /* Огромные кнопки для телефона */
         .mobile-controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 250px;
-            margin: 20px auto;
+            gap: 12px;
+            max-width: 300px;
+            margin: 20px auto 10px;
+            touch-action: none;
         }
+        
         .direction-btn {
             background: #4a5568;
             color: white;
             border: none;
-            padding: 15px;
-            font-size: 24px;
-            border-radius: 10px;
+            padding: 25px 0;
+            font-size: 32px;
+            border-radius: 25px;
             cursor: pointer;
+            box-shadow: 0 5px 0 #2d3748;
+            transition: all 0.05s;
+            -webkit-touch-callout: none;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
+        
         .direction-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #2d3748;
             background: #2d3748;
         }
+        
         .instructions {
             text-align: center;
             color: #666;
             margin-top: 15px;
             font-size: 14px;
+            font-weight: 500;
+            touch-action: none;
+        }
+        
+        /* Полноэкранный режим для iOS */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                /* Специально для iOS */
+                padding-top: constant(safe-area-inset-top);
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: constant(safe-area-inset-bottom);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
         }
     </style>
 </head>
@@ -110,8 +185,8 @@
         <h1>🐍 Змейка</h1>
         
         <div class="stats">
-            <span class="score">Счёт: <span id="score">0</span></span>
-            <span class="high-score">🏆 Рекорд: <span id="highScore">0</span></span>
+            <span>Счёт: <span id="score">0</span></span>
+            <span>🏆 <span id="highScore">0</span></span>
         </div>
 
         <div class="canvas-wrapper">
@@ -119,9 +194,9 @@
         </div>
 
         <div class="control-buttons">
-            <button class="action-btn" id="startBtn">▶ Старт</button>
-            <button class="action-btn" id="pauseBtn">⏸ Пауза</button>
-            <button class="action-btn" id="resetBtn">🔄 Сброс</button>
+            <button class="action-btn" id="startBtn">▶ СТАРТ</button>
+            <button class="action-btn" id="pauseBtn">⏸ ПАУЗА</button>
+            <button class="action-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
         <div class="mobile-controls">
@@ -134,25 +209,54 @@
         </div>
 
         <div class="instructions">
-            Нажми СТАРТ,然后用 стрелки или кнопки управления
+            👆 Игра не выйдет на шторку - жми смело!
         </div>
     </div>
 
     <script>
-        // Простая рабочая версия змейки
+        // ========== ПОЛНАЯ БЛОКИРОВКА ЖЕСТОВ ==========
+        // Блокируем все системные жесты на всей странице
+        document.body.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.body.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.body.addEventListener('touchend', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.body.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Блокируем контекстное меню
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Блокируем выделение текста
+        document.addEventListener('selectstart', (e) => {
+            e.preventDefault();
+        });
+
+        // ========== ИГРА ==========
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Переменные игры
+        // Настройки
         let snake = [{x: 10, y: 10}];
         let direction = {x: 1, y: 0};
+        let nextDirection = {x: 1, y: 0};
         let food = {x: 15, y: 15};
         let score = 0;
         let gameRunning = false;
         let gamePaused = false;
         let gameInterval;
         
-        // Счетчики
+        // Счет
         const scoreSpan = document.getElementById('score');
         const highScoreSpan = document.getElementById('highScore');
         let highScore = localStorage.getItem('snakeHighScore') || 0;
@@ -164,11 +268,17 @@
                 x: Math.floor(Math.random() * 20),
                 y: Math.floor(Math.random() * 20)
             };
+            
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    createFood();
+                    break;
+                }
+            }
         }
 
         // Отрисовка
         function draw() {
-            // Очистка
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, 400, 400);
             
@@ -188,21 +298,42 @@
             }
             
             // Змейка
-            ctx.fillStyle = '#4CAF50';
-            for (let segment of snake) {
-                ctx.fillRect(segment.x * 20, segment.y * 20, 18, 18);
-            }
-            
-            // Голова другим цветом
-            if (snake.length > 0) {
-                ctx.fillStyle = '#2E7D32';
-                ctx.fillRect(snake[0].x * 20, snake[0].y * 20, 18, 18);
+            for (let i = 0; i < snake.length; i++) {
+                if (i === 0) {
+                    ctx.fillStyle = '#2E7D32';
+                    ctx.fillRect(snake[i].x * 20, snake[i].y * 20, 18, 18);
+                    
+                    // Глазки
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath();
+                    ctx.arc(snake[i].x * 20 + 5, snake[i].y * 20 + 5, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(snake[i].x * 20 + 15, snake[i].y * 20 + 5, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = 'black';
+                    ctx.beginPath();
+                    ctx.arc(snake[i].x * 20 + 5, snake[i].y * 20 + 5, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(snake[i].x * 20 + 15, snake[i].y * 20 + 5, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(snake[i].x * 20, snake[i].y * 20, 18, 18);
+                }
             }
             
             // Еда
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = '#f44336';
             ctx.beginPath();
             ctx.arc(food.x * 20 + 10, food.y * 20 + 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffcdd2';
+            ctx.beginPath();
+            ctx.arc(food.x * 20 + 6, food.y * 20 + 6, 3, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -210,18 +341,18 @@
         function move() {
             if (!gameRunning || gamePaused) return;
             
+            direction = {...nextDirection};
+            
             const head = {
                 x: snake[0].x + direction.x,
                 y: snake[0].y + direction.y
             };
             
-            // Проверка стен
             if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
                 gameOver();
                 return;
             }
             
-            // Проверка себя
             for (let segment of snake) {
                 if (head.x === segment.x && head.y === segment.y) {
                     gameOver();
@@ -231,7 +362,6 @@
             
             snake.unshift(head);
             
-            // Проверка еды
             if (head.x === food.x && head.y === food.y) {
                 score += 10;
                 scoreSpan.textContent = score;
@@ -243,7 +373,6 @@
             draw();
         }
 
-        // Конец игры
         function gameOver() {
             gameRunning = false;
             clearInterval(gameInterval);
@@ -257,22 +386,23 @@
             ctx.fillStyle = 'rgba(0,0,0,0.7)';
             ctx.fillRect(0, 0, 400, 400);
             ctx.fillStyle = 'white';
-            ctx.font = '20px Arial';
+            ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Игра окончена!', 200, 200);
-            ctx.fillText('Счёт: ' + score, 200, 240);
+            ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 180);
+            ctx.font = '20px Arial';
+            ctx.fillText('Счёт: ' + score, 200, 230);
         }
 
-        // Старт
         function startGame() {
             if (gameRunning) {
                 gamePaused = false;
-                document.getElementById('pauseBtn').textContent = '⏸ Пауза';
+                document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
                 return;
             }
             
             snake = [{x: 10, y: 10}];
             direction = {x: 1, y: 0};
+            nextDirection = {x: 1, y: 0};
             score = 0;
             scoreSpan.textContent = score;
             createFood();
@@ -280,22 +410,21 @@
             gamePaused = false;
             
             if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(move, 150);
+            gameInterval = setInterval(move, 200);
             draw();
         }
 
-        // Пауза
         function pauseGame() {
             if (!gameRunning) return;
             gamePaused = !gamePaused;
             document.getElementById('pauseBtn').textContent = 
-                gamePaused ? '▶ Продолжить' : '⏸ Пауза';
+                gamePaused ? '▶ ПРОДОЛЖИТЬ' : '⏸ ПАУЗА';
             
             if (gamePaused) {
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fillRect(0, 0, 400, 400);
                 ctx.fillStyle = 'white';
-                ctx.font = '20px Arial';
+                ctx.font = 'bold 24px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('ПАУЗА', 200, 200);
             } else {
@@ -303,7 +432,6 @@
             }
         }
 
-        // Сброс
         function resetGame() {
             gameRunning = false;
             gamePaused = false;
@@ -311,59 +439,124 @@
             
             snake = [{x: 10, y: 10}];
             direction = {x: 1, y: 0};
+            nextDirection = {x: 1, y: 0};
             score = 0;
             scoreSpan.textContent = score;
             createFood();
             draw();
-            document.getElementById('pauseBtn').textContent = '⏸ Пауза';
+            document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
         }
 
-        // Управление
+        // ========== УПРАВЛЕНИЕ С БЛОКИРОВКОЙ ЖЕСТОВ ==========
+        function setDirection(x, y) {
+            if (!gameRunning || gamePaused) return;
+            
+            if (direction.x === -x || direction.y === -y) return;
+            
+            nextDirection = {x, y};
+        }
+
+        // Назначаем обработчики с блокировкой стандартных жестов
+        const buttons = {
+            up: document.getElementById('upBtn'),
+            down: document.getElementById('downBtn'),
+            left: document.getElementById('leftBtn'),
+            right: document.getElementById('rightBtn')
+        };
+
+        // Функция для назначения обработчиков с полной блокировкой
+        function addSafeListener(element, x, y) {
+            // Блокируем все события на кнопке
+            element.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDirection(x, y);
+            }, { passive: false });
+
+            element.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false });
+
+            element.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false });
+
+            element.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false });
+
+            // Для мыши (на всякий случай)
+            element.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                setDirection(x, y);
+            });
+
+            element.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+            });
+        }
+
+        // Применяем ко всем кнопкам
+        addSafeListener(buttons.up, 0, -1);
+        addSafeListener(buttons.down, 0, 1);
+        addSafeListener(buttons.left, -1, 0);
+        addSafeListener(buttons.right, 1, 0);
+
+        // Клавиатура
         document.addEventListener('keydown', (e) => {
+            e.preventDefault(); // Блокируем скролл стрелками
+            
             if (!gameRunning || gamePaused) return;
             
             switch(e.key) {
-                case 'ArrowUp':
-                    if (direction.y === 0) direction = {x: 0, y: -1};
-                    break;
-                case 'ArrowDown':
-                    if (direction.y === 0) direction = {x: 0, y: 1};
-                    break;
-                case 'ArrowLeft':
-                    if (direction.x === 0) direction = {x: -1, y: 0};
-                    break;
-                case 'ArrowRight':
-                    if (direction.x === 0) direction = {x: 1, y: 0};
-                    break;
+                case 'ArrowUp': setDirection(0, -1); break;
+                case 'ArrowDown': setDirection(0, 1); break;
+                case 'ArrowLeft': setDirection(-1, 0); break;
+                case 'ArrowRight': setDirection(1, 0); break;
             }
         });
 
-        // Мобильные кнопки
-        document.getElementById('upBtn').onclick = () => {
-            if (gameRunning && !gamePaused && direction.y === 0) 
-                direction = {x: 0, y: -1};
-        };
-        document.getElementById('downBtn').onclick = () => {
-            if (gameRunning && !gamePaused && direction.y === 0) 
-                direction = {x: 0, y: 1};
-        };
-        document.getElementById('leftBtn').onclick = () => {
-            if (gameRunning && !gamePaused && direction.x === 0) 
-                direction = {x: -1, y: 0};
-        };
-        document.getElementById('rightBtn').onclick = () => {
-            if (gameRunning && !gamePaused && direction.x === 0) 
-                direction = {x: 1, y: 0};
-        };
-
         // Кнопки управления
-        document.getElementById('startBtn').onclick = startGame;
-        document.getElementById('pauseBtn').onclick = pauseGame;
-        document.getElementById('resetBtn').onclick = resetGame;
+        document.getElementById('startBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startGame();
+        });
 
-        // Начальная отрисовка
+        document.getElementById('pauseBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            pauseGame();
+        });
+
+        document.getElementById('resetBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            resetGame();
+        });
+
+        // Начало
         createFood();
         draw();
+
+        // Дополнительная защита от выхода из полноэкранного режима
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            // Уже в PWA режиме
+        }
+
+        // Запрос полноэкранного режима при старте (опционально)
+        function requestFullScreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+        }
+
+        // Можно вызвать при клике на старт, если хочешь
+        // requestFullScreen();
     </script>
 </body>
 </html>
