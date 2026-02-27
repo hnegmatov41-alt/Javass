@@ -17,91 +17,87 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Изменил на flex-start */
             font-family: Arial, sans-serif;
-            padding: 10px;
+            padding: 5px; /* Уменьшил отступы */
         }
         
         .game-container {
             background: white;
-            border-radius: 30px;
-            padding: 20px;
+            border-radius: 25px;
+            padding: 12px; /* Уменьшил padding */
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
+            margin-top: 5px; /* Добавил отступ сверху */
         }
         
         h1 {
             text-align: center;
             color: #333;
-            font-size: 36px;
-            margin-bottom: 20px;
+            font-size: 28px; /* Уменьшил размер */
+            margin-bottom: 8px;
         }
         
         .stats {
             display: flex;
             justify-content: space-between;
             background: #f0f0f0;
-            padding: 15px 25px;
-            border-radius: 50px;
-            margin: 15px 0;
-            font-size: 20px;
+            padding: 10px 20px; /* Уменьшил padding */
+            border-radius: 40px;
+            margin: 8px 0;
+            font-size: 18px; /* Уменьшил шрифт */
             font-weight: bold;
         }
         
         .canvas-wrapper {
             display: flex;
             justify-content: center;
-            margin: 20px 0;
+            margin: 8px 0; /* Уменьшил отступы */
         }
         
         canvas {
             width: 100%;
-            max-width: 350px;
+            max-width: 320px; /* Уменьшил размер канваса */
             height: auto;
-            border: 4px solid #4a5568;
-            border-radius: 20px;
+            border: 3px solid #4a5568;
+            border-radius: 15px;
             background: #fff;
         }
         
         .game-controls {
             display: flex;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 6px; /* Уменьшил gap */
+            margin: 10px 0; /* Уменьшил отступы */
         }
         
         .game-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 0;
-            font-size: 20px;
-            border-radius: 40px;
+            padding: 12px 0; /* Уменьшил padding */
+            font-size: 16px; /* Уменьшил шрифт */
+            border-radius: 30px;
             cursor: pointer;
             flex: 1;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .game-btn:active {
-            transform: scale(0.95);
-        }
-        
-        /* ТОЛЬКО СТРЕЛКИ - БОЛЬШИЕ */
+        /* СТРЕЛКИ - поменьше размер */
         .arrow-controls {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 8px;
+            margin: 10px 0 5px;
             background: #e2e8f0;
-            padding: 25px;
-            border-radius: 40px;
+            padding: 15px; /* Уменьшил padding */
+            border-radius: 30px;
         }
         
         .arrow-row {
             display: flex;
-            gap: 30px;
+            gap: 20px; /* Уменьшил gap */
             justify-content: center;
         }
         
@@ -109,30 +105,28 @@
             background: #4a5568;
             color: white;
             border: none;
-            width: 90px;
-            height: 90px;
-            font-size: 50px;
-            border-radius: 25px;
+            width: 70px; /* Уменьшил размер */
+            height: 70px; /* Уменьшил размер */
+            font-size: 40px; /* Уменьшил шрифт */
+            border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 8px 0 #2d3748;
-            transition: all 0.05s;
+            box-shadow: 0 5px 0 #2d3748;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
         .arrow-btn:active {
-            transform: translateY(8px);
+            transform: translateY(5px);
             box-shadow: none;
-            background: #2d3748;
         }
         
         .hint {
             text-align: center;
             color: #4a5568;
-            font-size: 18px;
+            font-size: 14px; /* Уменьшил шрифт */
             font-weight: bold;
-            margin: 10px 0;
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -155,7 +149,7 @@
             <button class="game-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <!-- ТОЛЬКО СТРЕЛКИ -->
+        <!-- СТРЕЛКИ -->
         <div class="arrow-controls">
             <div class="arrow-row">
                 <button class="arrow-btn" id="upBtn">⬆️</button>
@@ -168,7 +162,7 @@
         </div>
         
         <div class="hint" id="hint">
-            👇 НАЖМИ СТАРТ И ИГРАЙ
+            👇 НАЖМИ СТАРТ
         </div>
     </div>
 
@@ -176,7 +170,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Настройки игры - ТОЛЬКО НОРМАЛЬНАЯ СКОРОСТЬ 100
+        // Настройки игры
         let snake = [
             {x: 10, y: 10},
             {x: 9, y: 10},
@@ -190,8 +184,8 @@
         let gamePaused = false;
         let gameInterval;
         
-        // ФИКСИРОВАННАЯ СКОРОСТЬ 100ms
-        const SPEED = 100;
+        // СКОРОСТЬ - МЕДЛЕННЕЕ (150ms вместо 100ms)
+        const SPEED = 150;
         
         const scoreSpan = document.getElementById('score');
         const highScoreSpan = document.getElementById('highScore');
@@ -204,7 +198,6 @@
                 y: Math.floor(Math.random() * 20)
             };
             
-            // Проверка, не на змейке ли
             for (let segment of snake) {
                 if (segment.x === food.x && segment.y === food.y) {
                     createFood();
@@ -214,7 +207,6 @@
         }
 
         function draw() {
-            // Фон
             ctx.fillStyle = '#f8fafc';
             ctx.fillRect(0, 0, 400, 400);
             
@@ -233,12 +225,11 @@
                 ctx.stroke();
             }
             
-            // Змейка - квадратная
+            // Змейка
             for (let i = 0; i < snake.length; i++) {
                 const seg = snake[i];
                 
                 if (i === 0) {
-                    // Голова
                     ctx.fillStyle = '#166534';
                     ctx.fillRect(seg.x * 20 + 2, seg.y * 20 + 2, 16, 16);
                     
@@ -251,7 +242,6 @@
                     ctx.fillRect(seg.x * 20 + 6, seg.y * 20 + 6, 2, 2);
                     ctx.fillRect(seg.x * 20 + 13, seg.y * 20 + 6, 2, 2);
                 } else {
-                    // Тело
                     ctx.fillStyle = '#22c55e';
                     ctx.fillRect(seg.x * 20 + 2, seg.y * 20 + 2, 16, 16);
                 }
@@ -272,13 +262,11 @@
                 y: snake[0].y + direction.y
             };
             
-            // Проверка стен
             if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
                 gameOver();
                 return;
             }
             
-            // Проверка себя
             for (let segment of snake) {
                 if (head.x === segment.x && head.y === segment.y) {
                     gameOver();
@@ -288,7 +276,6 @@
             
             snake.unshift(head);
             
-            // Проверка еды
             if (head.x === food.x && head.y === food.y) {
                 score += 10;
                 scoreSpan.textContent = score;
@@ -310,15 +297,14 @@
                 highScoreSpan.textContent = highScore;
             }
             
-            // Сообщение
             ctx.fillStyle = 'rgba(0,0,0,0.8)';
             ctx.fillRect(0, 0, 400, 400);
             
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 24px Arial';
+            ctx.font = 'bold 22px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 180);
-            ctx.font = '20px Arial';
+            ctx.font = '18px Arial';
             ctx.fillText('Счёт: ' + score, 200, 240);
             ctx.fillText('Нажми СТАРТ', 200, 300);
             
@@ -332,7 +318,6 @@
                 return;
             }
             
-            // Начальная змейка
             snake = [
                 {x: 10, y: 10},
                 {x: 9, y: 10},
@@ -347,10 +332,10 @@
             gamePaused = false;
             
             if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(move, SPEED); // ВСЕГДА 100ms
+            gameInterval = setInterval(move, SPEED);
             draw();
             
-            document.getElementById('hint').textContent = '🎮 ЖМИ НА СТРЕЛКИ ВНИЗУ!';
+            document.getElementById('hint').textContent = '🎮 ЖМИ НА СТРЕЛКИ!';
         }
 
         function pauseGame() {
@@ -363,7 +348,7 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fillRect(0, 0, 400, 400);
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 24px Arial';
+                ctx.font = 'bold 22px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('ПАУЗА', 200, 200);
                 document.getElementById('hint').textContent = '⏸ Пауза';
@@ -390,17 +375,16 @@
             createFood();
             draw();
             document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
-            document.getElementById('hint').textContent = '🔄 Игра сброшена - нажми СТАРТ';
+            document.getElementById('hint').textContent = '🔄 Нажми СТАРТ';
         }
 
-        // Управление СТРЕЛКАМИ
         function setDirection(x, y) {
             if (!gameRunning || gamePaused) return;
             if (direction.x === -x || direction.y === -y) return;
             nextDirection = {x, y};
         }
 
-        // Стрелки на телефоне
+        // Стрелки
         document.getElementById('upBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             setDirection(0, -1);
@@ -418,7 +402,7 @@
             setDirection(1, 0);
         });
 
-        // Стрелки на клавиатуре
+        // Клавиатура
         document.addEventListener('keydown', (e) => {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
@@ -431,7 +415,6 @@
             }
         });
 
-        // Кнопки управления
         document.getElementById('startBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             startGame();
@@ -445,11 +428,9 @@
             resetGame();
         });
 
-        // Блокировка скролла
         document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // Начало
         createFood();
         draw();
     </script>
