@@ -3,29 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐍 Змейка - Полноэкранный режим</title>
+    <title>🐍 Змейка - 3 режима управления</title>
     <style>
-        /* Абсолютно полный экран */
+        /* Полный экран */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
         }
         
-        /* Занимаем весь экран */
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Убираем скролл полностью */
-            position: fixed; /* Фиксируем позицию */
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            overflow: hidden;
+            position: fixed;
         }
         
         body {
@@ -34,47 +27,37 @@
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif;
-            padding: 0;
-            touch-action: none; /* Полностью отключаем все жесты браузера */
-            -webkit-overflow-scrolling: none;
+            touch-action: none;
         }
         
         .game-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 500px;
             margin: 0 15px;
-            /* Защита от выезда под шторку */
-            position: relative;
-            z-index: 10;
-            /* Адаптация под безопасные зоны */
             padding-top: max(20px, env(safe-area-inset-top));
             padding-bottom: max(20px, env(safe-area-inset-bottom));
-            padding-left: max(20px, env(safe-area-inset-left));
-            padding-right: max(20px, env(safe-area-inset-right));
         }
         
         h1 {
             text-align: center;
             color: #333;
-            font-size: clamp(24px, 8vw, 36px);
+            font-size: 32px;
             margin-bottom: 10px;
-            font-weight: 800;
         }
         
         .stats {
             display: flex;
             justify-content: space-between;
             background: #f0f0f0;
-            padding: 15px 20px;
+            padding: 15px 25px;
             border-radius: 50px;
             margin: 15px 0;
-            font-size: clamp(16px, 4vw, 20px);
+            font-size: 20px;
             font-weight: bold;
         }
         
@@ -82,8 +65,6 @@
             display: flex;
             justify-content: center;
             margin: 15px 0;
-            /* Защита canvas от жестов */
-            touch-action: none;
         }
         
         canvas {
@@ -94,9 +75,7 @@
             border: 3px solid #4a5568;
             border-radius: 20px;
             background: #fff;
-            touch-action: none; /* Отключает все жесты на canvas */
-            -webkit-touch-callout: none;
-            pointer-events: auto;
+            touch-action: none;
         }
         
         .control-buttons {
@@ -104,7 +83,6 @@
             gap: 10px;
             justify-content: center;
             margin: 20px 0;
-            touch-action: none;
         }
         
         .action-btn {
@@ -112,14 +90,12 @@
             color: white;
             border: none;
             padding: 15px 10px;
-            font-size: clamp(14px, 4vw, 18px);
+            font-size: 18px;
             border-radius: 40px;
             cursor: pointer;
             flex: 1;
             font-weight: bold;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            -webkit-touch-callout: none;
-            touch-action: none;
             min-width: 80px;
         }
         
@@ -127,14 +103,54 @@
             transform: scale(0.95);
         }
         
-        /* Огромные кнопки для телефона */
-        .mobile-controls {
+        /* ===== НОВЫЙ РАЗДЕЛ - ВЫБОР РЕЖИМА УПРАВЛЕНИЯ ===== */
+        .mode-selector {
+            background: #f0f0f0;
+            border-radius: 50px;
+            padding: 10px;
+            margin: 20px 0 15px;
+            display: flex;
+            justify-content: space-around;
+            gap: 8px;
+        }
+        
+        .mode-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 5px;
+            font-size: 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s;
+            touch-action: none;
+        }
+        
+        .mode-btn.active {
+            background: #4a5568;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .mode-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Контейнеры для разных режимов */
+        .controls-container {
+            min-height: 200px;
+            transition: all 0.2s;
+        }
+        
+        /* РЕЖИМ 1: Классические кнопки */
+        .classic-controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            max-width: 300px;
-            margin: 20px auto 10px;
-            touch-action: none;
+            max-width: 280px;
+            margin: 0 auto;
         }
         
         .direction-btn {
@@ -147,10 +163,7 @@
             cursor: pointer;
             box-shadow: 0 5px 0 #2d3748;
             transition: all 0.05s;
-            -webkit-touch-callout: none;
             touch-action: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
         
         .direction-btn:active {
@@ -159,24 +172,76 @@
             background: #2d3748;
         }
         
+        /* РЕЖИМ 2: Джойстик (4 большие кнопки) */
+        .joystick-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        
+        .joystick-btn {
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 30px 0;
+            font-size: 36px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2d3748;
+            transition: all 0.05s;
+            touch-action: none;
+        }
+        
+        .joystick-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #2d3748;
+            background: #2d3748;
+        }
+        
+        /* РЕЖИМ 3: Свайп-зона */
+        .swipe-controls {
+            background: #4a5568;
+            border-radius: 30px;
+            padding: 40px 20px;
+            max-width: 280px;
+            margin: 0 auto;
+            text-align: center;
+            color: white;
+        }
+        
+        .swipe-area {
+            background: #2d3748;
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 10px 0;
+            font-size: 24px;
+            touch-action: none;
+        }
+        
+        .swipe-hint {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #a0aec0;
+        }
+        
+        .swipe-arrow {
+            font-size: 48px;
+            margin: 10px;
+            display: inline-block;
+        }
+        
+        /* Скрываем/показываем режимы */
+        .hidden {
+            display: none !important;
+        }
+        
         .instructions {
             text-align: center;
             color: #666;
             margin-top: 15px;
             font-size: 14px;
-            font-weight: 500;
-            touch-action: none;
-        }
-        
-        /* Полноэкранный режим для iOS */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                /* Специально для iOS */
-                padding-top: constant(safe-area-inset-top);
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: constant(safe-area-inset-bottom);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
         }
     </style>
 </head>
@@ -199,54 +264,57 @@
             <button class="action-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <div class="mobile-controls">
-            <div></div>
-            <button class="direction-btn" id="upBtn">⬆️</button>
-            <div></div>
-            <button class="direction-btn" id="leftBtn">⬅️</button>
-            <button class="direction-btn" id="downBtn">⬇️</button>
-            <button class="direction-btn" id="rightBtn">➡️</button>
+        <!-- ===== НОВЫЙ РАЗДЕЛ - ВЫБОР РЕЖИМА ===== -->
+        <div class="mode-selector">
+            <button class="mode-btn active" id="modeClassic">🔘 Кнопки</button>
+            <button class="mode-btn" id="modeJoystick">🕹️ Джойстик</button>
+            <button class="mode-btn" id="modeSwipe">👆 Свайп</button>
+        </div>
+
+        <!-- Контейнер для всех режимов -->
+        <div class="controls-container">
+            <!-- РЕЖИМ 1: Классические кнопки -->
+            <div id="classicControls" class="classic-controls">
+                <div></div>
+                <button class="direction-btn" id="upBtn">⬆️</button>
+                <div></div>
+                <button class="direction-btn" id="leftBtn">⬅️</button>
+                <button class="direction-btn" id="downBtn">⬇️</button>
+                <button class="direction-btn" id="rightBtn">➡️</button>
+            </div>
+
+            <!-- РЕЖИМ 2: Джойстик (4 большие кнопки) -->
+            <div id="joystickControls" class="joystick-controls hidden">
+                <button class="joystick-btn" id="joyUpBtn">⬆️</button>
+                <button class="joystick-btn" id="joyRightBtn">➡️</button>
+                <button class="joystick-btn" id="joyDownBtn">⬇️</button>
+                <button class="joystick-btn" id="joyLeftBtn">⬅️</button>
+            </div>
+
+            <!-- РЕЖИМ 3: Свайп-зона -->
+            <div id="swipeControls" class="swipe-controls hidden">
+                <div class="swipe-hint">Проведи пальцем</div>
+                <div class="swipe-area" id="swipeArea">
+                    <span class="swipe-arrow">⬆️</span>
+                    <span class="swipe-arrow">⬅️</span>
+                    <span class="swipe-arrow">⬇️</span>
+                    <span class="swipe-arrow">➡️</span>
+                </div>
+                <div class="swipe-hint" id="swipeDirection">👆 Свайпай здесь</div>
+            </div>
         </div>
 
         <div class="instructions">
-            👆 Игра не выйдет на шторку - жми смело!
+            🔄 Меняй режим в зависимости от того, как удобно играть
         </div>
     </div>
 
     <script>
-        // ========== ПОЛНАЯ БЛОКИРОВКА ЖЕСТОВ ==========
-        // Блокируем все системные жесты на всей странице
-        document.body.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-        }, { passive: false });
-
-        document.body.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        }, { passive: false });
-
-        document.body.addEventListener('touchend', (e) => {
-            e.preventDefault();
-        }, { passive: false });
-
-        document.body.addEventListener('touchcancel', (e) => {
-            e.preventDefault();
-        }, { passive: false });
-
-        // Блокируем контекстное меню
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-        });
-
-        // Блокируем выделение текста
-        document.addEventListener('selectstart', (e) => {
-            e.preventDefault();
-        });
-
         // ========== ИГРА ==========
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Настройки
+        // Настройки игры
         let snake = [{x: 10, y: 10}];
         let direction = {x: 1, y: 0};
         let nextDirection = {x: 1, y: 0};
@@ -261,6 +329,9 @@
         const highScoreSpan = document.getElementById('highScore');
         let highScore = localStorage.getItem('snakeHighScore') || 0;
         highScoreSpan.textContent = highScore;
+
+        // Текущий режим
+        let currentMode = 'classic'; // classic, joystick, swipe
 
         // Создание еды
         function createFood() {
@@ -388,9 +459,9 @@
             ctx.fillStyle = 'white';
             ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 180);
+            ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 200);
             ctx.font = '20px Arial';
-            ctx.fillText('Счёт: ' + score, 200, 230);
+            ctx.fillText('Счёт: ' + score, 200, 250);
         }
 
         function startGame() {
@@ -447,68 +518,124 @@
             document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
         }
 
-        // ========== УПРАВЛЕНИЕ С БЛОКИРОВКОЙ ЖЕСТОВ ==========
+        // ========== УПРАВЛЕНИЕ НАПРАВЛЕНИЕМ ==========
         function setDirection(x, y) {
             if (!gameRunning || gamePaused) return;
-            
             if (direction.x === -x || direction.y === -y) return;
-            
             nextDirection = {x, y};
-        }
-
-        // Назначаем обработчики с блокировкой стандартных жестов
-        const buttons = {
-            up: document.getElementById('upBtn'),
-            down: document.getElementById('downBtn'),
-            left: document.getElementById('leftBtn'),
-            right: document.getElementById('rightBtn')
-        };
-
-        // Функция для назначения обработчиков с полной блокировкой
-        function addSafeListener(element, x, y) {
-            // Блокируем все события на кнопке
-            element.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setDirection(x, y);
-            }, { passive: false });
-
-            element.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, { passive: false });
-
-            element.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, { passive: false });
-
-            element.addEventListener('touchcancel', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, { passive: false });
-
-            // Для мыши (на всякий случай)
-            element.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                setDirection(x, y);
-            });
-
-            element.addEventListener('mouseup', (e) => {
-                e.preventDefault();
-            });
-        }
-
-        // Применяем ко всем кнопкам
-        addSafeListener(buttons.up, 0, -1);
-        addSafeListener(buttons.down, 0, 1);
-        addSafeListener(buttons.left, -1, 0);
-        addSafeListener(buttons.right, 1, 0);
-
-        // Клавиатура
-        document.addEventListener('keydown', (e) => {
-            e.preventDefault(); // Блокируем скролл стрелками
             
+            // Показываем направление в свайп-режиме
+            if (currentMode === 'swipe') {
+                const hint = document.getElementById('swipeDirection');
+                const arrows = ['⬆️', '⬇️', '⬅️', '➡️'];
+                if (x === 0 && y === -1) hint.textContent = '⬆️ Вверх';
+                else if (x === 0 && y === 1) hint.textContent = '⬇️ Вниз';
+                else if (x === -1 && y === 0) hint.textContent = '⬅️ Влево';
+                else if (x === 1 && y === 0) hint.textContent = '➡️ Вправо';
+            }
+        }
+
+        // ========== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ==========
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Обновляем классы кнопок
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Прячем все контролы
+            document.getElementById('classicControls').classList.add('hidden');
+            document.getElementById('joystickControls').classList.add('hidden');
+            document.getElementById('swipeControls').classList.add('hidden');
+            
+            // Показываем нужный режим
+            if (mode === 'classic') {
+                document.getElementById('modeClassic').classList.add('active');
+                document.getElementById('classicControls').classList.remove('hidden');
+            } else if (mode === 'joystick') {
+                document.getElementById('modeJoystick').classList.add('active');
+                document.getElementById('joystickControls').classList.remove('hidden');
+            } else if (mode === 'swipe') {
+                document.getElementById('modeSwipe').classList.add('active');
+                document.getElementById('swipeControls').classList.remove('hidden');
+            }
+        }
+
+        // ========== НАСТРОЙКА УПРАВЛЕНИЯ ==========
+        
+        // РЕЖИМ 1: Классические кнопки
+        document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(0, -1);
+        });
+        document.getElementById('downBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(0, 1);
+        });
+        document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(-1, 0);
+        });
+        document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(1, 0);
+        });
+
+        // РЕЖИМ 2: Джойстик
+        document.getElementById('joyUpBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(0, -1);
+        });
+        document.getElementById('joyDownBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(0, 1);
+        });
+        document.getElementById('joyLeftBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(-1, 0);
+        });
+        document.getElementById('joyRightBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setDirection(1, 0);
+        });
+
+        // РЕЖИМ 3: Свайп
+        const swipeArea = document.getElementById('swipeArea');
+        let touchStart = {x: 0, y: 0};
+        
+        swipeArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStart.x = e.touches[0].clientX;
+            touchStart.y = e.touches[0].clientY;
+        });
+        
+        swipeArea.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!touchStart.x || !touchStart.y) return;
+            
+            const touchEnd = {
+                x: e.changedTouches[0].clientX,
+                y: e.changedTouches[0].clientY
+            };
+            
+            const diffX = touchStart.x - touchEnd.x;
+            const diffY = touchStart.y - touchEnd.y;
+            
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
+                if (diffX > 0) setDirection(-1, 0); // Свайп влево
+                else setDirection(1, 0); // Свайп вправо
+            } else if (Math.abs(diffY) > 30) {
+                if (diffY > 0) setDirection(0, -1); // Свайп вверх
+                else setDirection(0, 1); // Свайп вниз
+            }
+            
+            touchStart = {x: 0, y: 0};
+        });
+
+        // Клавиатура для всех режимов
+        document.addEventListener('keydown', (e) => {
+            e.preventDefault();
             if (!gameRunning || gamePaused) return;
             
             switch(e.key) {
@@ -524,39 +651,37 @@
             e.preventDefault();
             startGame();
         });
-
         document.getElementById('pauseBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             pauseGame();
         });
-
         document.getElementById('resetBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             resetGame();
         });
 
+        // Переключение режимов
+        document.getElementById('modeClassic').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            switchMode('classic');
+        });
+        document.getElementById('modeJoystick').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            switchMode('joystick');
+        });
+        document.getElementById('modeSwipe').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            switchMode('swipe');
+        });
+
+        // Блокировка всех жестов на странице
+        document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        document.body.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
         // Начало
         createFood();
         draw();
-
-        // Дополнительная защита от выхода из полноэкранного режима
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            // Уже в PWA режиме
-        }
-
-        // Запрос полноэкранного режима при старте (опционально)
-        function requestFullScreen() {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            } else if (document.documentElement.msRequestFullscreen) {
-                document.documentElement.msRequestFullscreen();
-            }
-        }
-
-        // Можно вызвать при клике на старт, если хочешь
-        // requestFullScreen();
     </script>
 </body>
 </html>
