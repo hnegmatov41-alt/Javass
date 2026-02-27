@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐍 Змейка - Медленная и четкая</title>
+    <title>🐍 Змейка - Супер-кнопки</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* Убирает серый фон при нажатии */
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -63,6 +63,7 @@
             border: 3px solid #4a5568;
             border-radius: 15px;
             background: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .game-controls {
@@ -71,6 +72,7 @@
             margin: 10px 0;
         }
         
+        /* ===== УЛУЧШЕННЫЕ КНОПКИ ===== */
         .game-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -81,20 +83,53 @@
             cursor: pointer;
             flex: 1;
             font-weight: bold;
-            transition: all 0.1s;
-            /* Улучшение для касания */
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+            /* Защита от выделения */
             -webkit-touch-callout: none;
-            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
         }
         
-        /* Эффект при нажатии на кнопки управления */
+        /* Эффект пульсации при нажатии */
+        .game-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .game-btn:active::after {
+            animation: ripple 0.3s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(40, 40);
+                opacity: 0;
+            }
+        }
+        
         .game-btn:active {
             transform: scale(0.95);
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.8);
+            box-shadow: 0 2px 15px rgba(102, 126, 234, 0.8);
         }
         
-        /* СТРЕЛКИ - с улучшенным откликом */
+        /* ===== СУПЕР-СТРЕЛКИ ===== */
         .arrow-controls {
             display: flex;
             flex-direction: column;
@@ -104,6 +139,7 @@
             background: #e2e8f0;
             padding: 15px;
             border-radius: 30px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .arrow-row {
@@ -116,34 +152,69 @@
             background: #4a5568;
             color: white;
             border: none;
-            width: 70px;
-            height: 70px;
-            font-size: 40px;
-            border-radius: 20px;
+            width: 75px;
+            height: 75px;
+            font-size: 42px;
+            border-radius: 25px;
             cursor: pointer;
-            box-shadow: 0 5px 0 #2d3748;
-            transition: all 0.05s;
-            /* Улучшение для касания */
+            box-shadow: 0 6px 0 #2d3748, 0 8px 15px rgba(0,0,0,0.3);
+            transition: all 0.08s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            /* Защита от выделения */
             -webkit-touch-callout: none;
-            touch-action: manipulation;
-            /* Плавность */
-            -webkit-transition: all 0.05s;
+            -webkit-user-select: none;
+            user-select: none;
+            /* Текст не должен сжиматься */
+            font-weight: bold;
+            text-shadow: 0 2px 0 #2d3748;
         }
         
-        /* МГНОВЕННЫЙ эффект при нажатии */
+        /* Эффект свечения при нажатии */
+        .arrow-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.1s;
+            pointer-events: none;
+        }
+        
+        /* МГНОВЕННЫЙ И СИЛЬНЫЙ ЭФФЕКТ НАЖАТИЯ */
         .arrow-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 #2d3748;
+            transform: translateY(8px) scale(0.95);
+            box-shadow: 0 2px 0 #2d3748, 0 5px 12px rgba(0,0,0,0.4);
             background: #2d3748;
-            /* Добавляем свечение */
-            filter: brightness(1.2);
+            transition: all 0.05s;
         }
         
-        /* Дополнительный эффект для тактильной обратной связи */
-        .arrow-btn.touched {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 #2d3748;
+        .arrow-btn:active::before {
+            opacity: 0.3;
+        }
+        
+        /* Эффект при касании для touch-устройств */
+        .arrow-btn.touch-active {
+            transform: translateY(8px) scale(0.95);
+            box-shadow: 0 2px 0 #2d3748, 0 5px 12px rgba(0,0,0,0.4);
             background: #2d3748;
+        }
+        
+        /* Дополнительный эффект - изменение цвета фона */
+        .arrow-btn.touch-active span {
+            transform: scale(1.1);
+            color: #ffd700;
+        }
+        
+        .arrow-btn span {
+            transition: all 0.1s;
+            display: inline-block;
         }
         
         .hint {
@@ -151,7 +222,17 @@
             color: #4a5568;
             font-size: 14px;
             font-weight: bold;
-            margin: 5px 0;
+            margin: 8px 0 5px;
+            padding: 5px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; transform: scale(1.02); }
+            100% { opacity: 1; }
         }
     </style>
 </head>
@@ -174,20 +255,20 @@
             <button class="game-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <!-- СТРЕЛКИ -->
+        <!-- СУПЕР-СТРЕЛКИ -->
         <div class="arrow-controls">
             <div class="arrow-row">
-                <button class="arrow-btn" id="upBtn">⬆️</button>
+                <button class="arrow-btn" id="upBtn"><span>⬆️</span></button>
             </div>
             <div class="arrow-row">
-                <button class="arrow-btn" id="leftBtn">⬅️</button>
-                <button class="arrow-btn" id="downBtn">⬇️</button>
-                <button class="arrow-btn" id="rightBtn">➡️</button>
+                <button class="arrow-btn" id="leftBtn"><span>⬅️</span></button>
+                <button class="arrow-btn" id="downBtn"><span>⬇️</span></button>
+                <button class="arrow-btn" id="rightBtn"><span>➡️</span></button>
             </div>
         </div>
         
         <div class="hint" id="hint">
-            👇 НАЖМИ СТАРТ
+            👇 НАЖМИ СТАРТ - КНОПКИ ОЧЕНЬ ЧУВСТВИТЕЛЬНЫЕ
         </div>
     </div>
 
@@ -209,7 +290,7 @@
         let gamePaused = false;
         let gameInterval;
         
-        // СКОРОСТЬ - ЕЩЁ МЕДЛЕННЕЕ (200ms)
+        // СКОРОСТЬ
         const SPEED = 200;
         
         const scoreSpan = document.getElementById('score');
@@ -217,12 +298,63 @@
         let highScore = localStorage.getItem('snakeHighScore') || 0;
         highScoreSpan.textContent = highScore;
 
-        // Функция для визуального эффекта нажатия
-        function addTouchEffect(btn) {
-            btn.classList.add('touched');
-            setTimeout(() => {
-                btn.classList.remove('touched');
-            }, 100);
+        // ===== УЛУЧШЕННАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+        function enhanceButton(btn, callback) {
+            if (!btn) return;
+            
+            // Touch события
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Добавляем класс для визуального эффекта
+                btn.classList.add('touch-active');
+                
+                // Вибрация (если поддерживается)
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(10); // Короткая вибрация
+                }
+                
+                // Вызываем callback
+                if (callback) callback();
+                
+                // Убираем эффект через 150ms
+                setTimeout(() => {
+                    btn.classList.remove('touch-active');
+                }, 150);
+            }, { passive: false });
+            
+            // Mouse события
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                
+                btn.classList.add('touch-active');
+                
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+                
+                if (callback) callback();
+                
+                setTimeout(() => {
+                    btn.classList.remove('touch-active');
+                }, 150);
+            });
+            
+            // Убираем эффект при отпускании
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btn.classList.remove('touch-active');
+            });
+            
+            btn.addEventListener('mouseup', () => {
+                btn.classList.remove('touch-active');
+            });
+            
+            btn.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                btn.classList.remove('touch-active');
+            });
         }
 
         function createFood() {
@@ -313,6 +445,11 @@
                 score += 10;
                 scoreSpan.textContent = score;
                 createFood();
+                
+                // Вибрация при съедании
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(20);
+                }
             } else {
                 snake.pop();
             }
@@ -328,6 +465,11 @@
                 highScore = score;
                 localStorage.setItem('snakeHighScore', highScore);
                 highScoreSpan.textContent = highScore;
+            }
+            
+            // Вибрация при проигрыше
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate([50, 30, 50]);
             }
             
             ctx.fillStyle = 'rgba(0,0,0,0.8)';
@@ -417,43 +559,18 @@
             nextDirection = {x, y};
         }
 
-        // УЛУЧШЕННЫЕ стрелки с мгновенным откликом
-        const upBtn = document.getElementById('upBtn');
-        const downBtn = document.getElementById('downBtn');
-        const leftBtn = document.getElementById('leftBtn');
-        const rightBtn = document.getElementById('rightBtn');
-
-        // Функция для обработки нажатия с эффектом
-        function handleArrowPress(btn, x, y, e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Добавляем визуальный эффект
-            btn.style.transform = 'translateY(5px)';
-            btn.style.boxShadow = 'none';
-            btn.style.background = '#2d3748';
-            
-            // Убираем эффект через 100ms
-            setTimeout(() => {
-                btn.style.transform = '';
-                btn.style.boxShadow = '0 5px 0 #2d3748';
-                btn.style.background = '#4a5568';
-            }, 100);
-            
-            setDirection(x, y);
-        }
-
-        // Touch события для телефона
-        upBtn.addEventListener('touchstart', (e) => handleArrowPress(upBtn, 0, -1, e));
-        downBtn.addEventListener('touchstart', (e) => handleArrowPress(downBtn, 0, 1, e));
-        leftBtn.addEventListener('touchstart', (e) => handleArrowPress(leftBtn, -1, 0, e));
-        rightBtn.addEventListener('touchstart', (e) => handleArrowPress(rightBtn, 1, 0, e));
-
-        // Mouse события для компьютера
-        upBtn.addEventListener('mousedown', (e) => handleArrowPress(upBtn, 0, -1, e));
-        downBtn.addEventListener('mousedown', (e) => handleArrowPress(downBtn, 0, 1, e));
-        leftBtn.addEventListener('mousedown', (e) => handleArrowPress(leftBtn, -1, 0, e));
-        rightBtn.addEventListener('mousedown', (e) => handleArrowPress(rightBtn, 1, 0, e));
+        // ===== ПРИМЕНЯЕМ УЛУЧШЕНИЯ КО ВСЕМ КНОПКАМ =====
+        
+        // Стрелки
+        enhanceButton(document.getElementById('upBtn'), () => setDirection(0, -1));
+        enhanceButton(document.getElementById('downBtn'), () => setDirection(0, 1));
+        enhanceButton(document.getElementById('leftBtn'), () => setDirection(-1, 0));
+        enhanceButton(document.getElementById('rightBtn'), () => setDirection(1, 0));
+        
+        // Кнопки управления
+        enhanceButton(document.getElementById('startBtn'), startGame);
+        enhanceButton(document.getElementById('pauseBtn'), pauseGame);
+        enhanceButton(document.getElementById('resetBtn'), resetGame);
 
         // Клавиатура
         document.addEventListener('keydown', (e) => {
@@ -466,22 +583,6 @@
                 case 'ArrowLeft': setDirection(-1, 0); break;
                 case 'ArrowRight': setDirection(1, 0); break;
             }
-        });
-
-        // Кнопки управления с эффектом
-        document.getElementById('startBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            startGame();
-        });
-        
-        document.getElementById('pauseBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            pauseGame();
-        });
-        
-        document.getElementById('resetBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            resetGame();
         });
 
         // Блокировка скролла
