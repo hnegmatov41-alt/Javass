@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐍 Змейка - Турбо-режим</title>
+    <title>🐍 Квадратная S-змейка</title>
     <style>
-        /* Полный экран с учетом навигационных кнопок */
         * {
             margin: 0;
             padding: 0;
@@ -19,114 +18,103 @@
             height: 100%;
             overflow: hidden;
             position: fixed;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif;
-            touch-action: none;
+            padding: 10px;
         }
         
         .game-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 30px;
+            border-radius: 40px;
             padding: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 500px;
-            margin: 0 15px;
-            /* Адаптация под навигационные кнопки телефона */
-            padding-top: max(20px, env(safe-area-inset-top));
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            padding-left: max(20px, env(safe-area-inset-left));
-            padding-right: max(20px, env(safe-area-inset-right));
-            /* Защита от навигационных кнопок */
-            margin-bottom: env(safe-area-inset-bottom);
+            max-width: 450px;
+            margin: auto;
         }
         
         h1 {
             text-align: center;
             color: #333;
-            font-size: 32px;
+            font-size: 28px;
             margin-bottom: 10px;
+            letter-spacing: 2px;
         }
         
+        /* Статистика */
         .stats {
             display: flex;
             justify-content: space-between;
             background: #f0f0f0;
-            padding: 15px 25px;
-            border-radius: 50px;
-            margin: 15px 0;
-            font-size: 20px;
+            padding: 12px 20px;
+            border-radius: 40px;
+            margin: 10px 0;
+            font-size: 18px;
             font-weight: bold;
         }
         
-        /* ===== НОВЫЙ БЛОК СКОРОСТИ ===== */
-        .speed-control {
-            background: #e0e0e0;
+        /* Блок скорости - ВСЕ В ОДНОМ */
+        .speed-panel {
+            background: #4a5568;
             border-radius: 50px;
-            padding: 15px 20px;
+            padding: 12px;
             margin: 15px 0;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
+            align-items: center;
+            color: white;
         }
         
         .speed-label {
             font-size: 18px;
             font-weight: bold;
-            color: #4a5568;
-            min-width: 80px;
+            margin-left: 10px;
         }
         
         .speed-buttons {
             display: flex;
-            gap: 8px;
-            flex: 1;
-            justify-content: flex-end;
+            gap: 5px;
+            background: #2d3748;
+            padding: 5px;
+            border-radius: 40px;
         }
         
-        .speed-btn {
-            background: white;
-            border: 2px solid #4a5568;
-            color: #4a5568;
-            padding: 10px 15px;
+        .speed-option {
+            background: transparent;
+            color: #a0aec0;
+            border: none;
+            padding: 8px 15px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 60px;
-            touch-action: none;
         }
         
-        .speed-btn.active {
-            background: #4a5568;
+        .speed-option.active {
+            background: #667eea;
             color: white;
-        }
-        
-        .speed-btn:active {
-            transform: scale(0.9);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
         }
         
         .speed-value {
-            background: #4a5568;
-            color: white;
+            background: #2d3748;
+            color: #667eea;
             padding: 8px 15px;
             border-radius: 30px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            min-width: 70px;
-            text-align: center;
+            margin-right: 10px;
         }
         
+        /* Канвас */
         .canvas-wrapper {
             display: flex;
             justify-content: center;
@@ -138,286 +126,146 @@
             max-width: 350px;
             height: auto;
             aspect-ratio: 1/1;
-            border: 3px solid #4a5568;
+            border: 4px solid #4a5568;
             border-radius: 20px;
             background: #fff;
-            touch-action: none;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
         
-        .control-buttons {
+        /* Кнопки управления игрой */
+        .game-controls {
             display: flex;
             gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
-        .action-btn {
+        .game-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 10px;
+            padding: 15px 0;
             font-size: 18px;
             border-radius: 40px;
             cursor: pointer;
             flex: 1;
             font-weight: bold;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            min-width: 80px;
-            touch-action: none;
         }
         
-        .action-btn:active {
+        .game-btn:active {
             transform: scale(0.95);
         }
         
-        /* Режимы управления */
-        .mode-selector {
-            background: #f0f0f0;
-            border-radius: 50px;
-            padding: 10px;
-            margin: 20px 0 15px;
+        /* Кнопки управления змейкой - ТОЛЬКО СТРЕЛКИ */
+        .arrow-controls {
             display: flex;
-            justify-content: space-around;
-            gap: 8px;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0 10px;
         }
         
-        .mode-btn {
-            background: transparent;
-            border: none;
-            padding: 12px 5px;
-            font-size: 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            flex: 1;
-            font-weight: bold;
-            color: #666;
-            transition: all 0.2s;
-            touch-action: none;
+        .arrow-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
         }
         
-        .mode-btn.active {
-            background: #4a5568;
-            color: white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        }
-        
-        .mode-btn:active {
-            transform: scale(0.95);
-        }
-        
-        /* Контейнеры для разных режимов */
-        .controls-container {
-            min-height: 200px;
-            transition: all 0.2s;
-        }
-        
-        /* РЕЖИМ 1: Классические кнопки */
-        .classic-controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            max-width: 280px;
-            margin: 0 auto;
-        }
-        
-        .direction-btn {
+        .arrow-btn {
             background: #4a5568;
             color: white;
             border: none;
-            padding: 25px 0;
-            font-size: 32px;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #2d3748;
-            transition: all 0.05s;
-            touch-action: none;
-        }
-        
-        .direction-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 #2d3748;
-            background: #2d3748;
-        }
-        
-        /* РЕЖИМ 2: Джойстик */
-        .joystick-controls {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            max-width: 280px;
-            margin: 0 auto;
-        }
-        
-        .joystick-btn {
-            background: #4a5568;
-            color: white;
-            border: none;
-            padding: 30px 0;
-            font-size: 36px;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #2d3748;
-            transition: all 0.05s;
-            touch-action: none;
-        }
-        
-        .joystick-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 #2d3748;
-            background: #2d3748;
-        }
-        
-        /* РЕЖИМ 3: Свайп */
-        .swipe-controls {
-            background: #4a5568;
-            border-radius: 30px;
-            padding: 30px 20px;
-            max-width: 280px;
-            margin: 0 auto;
-            text-align: center;
-            color: white;
-        }
-        
-        .swipe-area {
-            background: #2d3748;
+            width: 80px;
+            height: 80px;
+            font-size: 40px;
             border-radius: 20px;
-            padding: 30px 20px;
-            margin: 15px 0;
-            font-size: 24px;
-            touch-action: none;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2d3748;
+            transition: all 0.05s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .swipe-hint {
-            font-size: 18px;
-            margin: 10px 0;
-            color: #a0aec0;
+        .arrow-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #2d3748;
+            background: #2d3748;
         }
         
-        .swipe-arrow {
-            font-size: 48px;
-            margin: 10px;
-            display: inline-block;
-        }
-        
-        /* Скрываем/показываем режимы */
-        .hidden {
-            display: none !important;
-        }
-        
-        .instructions {
-            text-align: center;
-            color: #666;
-            margin-top: 15px;
-            font-size: 14px;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        
-        /* Адаптация под разные телефоны */
-        @media (max-width: 380px) {
-            .game-container {
-                padding: 15px;
+        /* Адаптация для маленьких экранов */
+        @media (max-width: 400px) {
+            .arrow-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 35px;
             }
             
-            .speed-control {
-                padding: 12px 15px;
-            }
-            
-            .speed-btn {
-                padding: 8px 10px;
+            .speed-option {
+                padding: 6px 10px;
                 font-size: 14px;
-                min-width: 50px;
-            }
-            
-            .direction-btn, .joystick-btn {
-                padding: 20px 0;
-                font-size: 28px;
             }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>🐍 Змейка</h1>
+        <h1>🐍 S-ЗМЕЙКА</h1>
         
+        <!-- Статистика -->
         <div class="stats">
-            <span>Счёт: <span id="score">0</span></span>
-            <span>🏆 <span id="highScore">0</span></span>
+            <span>⚡ Счёт: <span id="score">0</span></span>
+            <span>🏆 Рекорд: <span id="highScore">0</span></span>
         </div>
 
-        <!-- ===== НОВЫЙ БЛОК УПРАВЛЕНИЯ СКОРОСТЬЮ ===== -->
-        <div class="speed-control">
-            <span class="speed-label">⚡ Скорость:</span>
+        <!-- ВСЯ СКОРОСТЬ В ОДНОМ БЛОКЕ -->
+        <div class="speed-panel">
+            <span class="speed-label">⚡ Скорость</span>
             <div class="speed-buttons">
-                <button class="speed-btn" id="speedSlow">🐢 Медл</button>
-                <button class="speed-btn active" id="speedNormal">⚡ Норм</button>
-                <button class="speed-btn" id="speedFast">🚀 Быстр</button>
-                <button class="speed-btn" id="speedTurbo">💥 Турбо</button>
+                <button class="speed-option" id="speedSlow">Медл</button>
+                <button class="speed-option active" id="speedNormal">Норм</button>
+                <button class="speed-option" id="speedFast">Быстр</button>
+                <button class="speed-option" id="speedTurbo">Турбо</button>
             </div>
             <span class="speed-value" id="speedDisplay">200 ms</span>
         </div>
 
+        <!-- Игровое поле -->
         <div class="canvas-wrapper">
             <canvas id="gameCanvas" width="400" height="400"></canvas>
         </div>
 
-        <div class="control-buttons">
-            <button class="action-btn" id="startBtn">▶ СТАРТ</button>
-            <button class="action-btn" id="pauseBtn">⏸ ПАУЗА</button>
-            <button class="action-btn" id="resetBtn">🔄 СБРОС</button>
+        <!-- Кнопки управления игрой -->
+        <div class="game-controls">
+            <button class="game-btn" id="startBtn">▶ СТАРТ</button>
+            <button class="game-btn" id="pauseBtn">⏸ ПАУЗА</button>
+            <button class="game-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <!-- Выбор режима управления -->
-        <div class="mode-selector">
-            <button class="mode-btn active" id="modeClassic">🔘 Кнопки</button>
-            <button class="mode-btn" id="modeJoystick">🕹️ Джойстик</button>
-            <button class="mode-btn" id="modeSwipe">👆 Свайп</button>
-        </div>
-
-        <!-- Контейнер для всех режимов -->
-        <div class="controls-container">
-            <!-- РЕЖИМ 1: Классические кнопки -->
-            <div id="classicControls" class="classic-controls">
-                <div></div>
-                <button class="direction-btn" id="upBtn">⬆️</button>
-                <div></div>
-                <button class="direction-btn" id="leftBtn">⬅️</button>
-                <button class="direction-btn" id="downBtn">⬇️</button>
-                <button class="direction-btn" id="rightBtn">➡️</button>
+        <!-- ТОЛЬКО СТРЕЛКИ для управления -->
+        <div class="arrow-controls">
+            <div class="arrow-row">
+                <button class="arrow-btn" id="upBtn">⬆️</button>
             </div>
-
-            <!-- РЕЖИМ 2: Джойстик -->
-            <div id="joystickControls" class="joystick-controls hidden">
-                <button class="joystick-btn" id="joyUpBtn">⬆️</button>
-                <button class="joystick-btn" id="joyRightBtn">➡️</button>
-                <button class="joystick-btn" id="joyDownBtn">⬇️</button>
-                <button class="joystick-btn" id="joyLeftBtn">⬅️</button>
+            <div class="arrow-row">
+                <button class="arrow-btn" id="leftBtn">⬅️</button>
+                <button class="arrow-btn" id="downBtn">⬇️</button>
+                <button class="arrow-btn" id="rightBtn">➡️</button>
             </div>
-
-            <!-- РЕЖИМ 3: Свайп -->
-            <div id="swipeControls" class="swipe-controls hidden">
-                <div class="swipe-hint">Проведи пальцем</div>
-                <div class="swipe-area" id="swipeArea">
-                    <span class="swipe-arrow">⬆️</span>
-                    <span class="swipe-arrow">⬅️</span>
-                    <span class="swipe-arrow">⬇️</span>
-                    <span class="swipe-arrow">➡️</span>
-                </div>
-                <div class="swipe-hint" id="swipeDirection">👆 Свайпай здесь</div>
-            </div>
-        </div>
-
-        <div class="instructions">
-            🔄 Меняй скорость и режим под себя
         </div>
     </div>
 
     <script>
-        // ========== ИГРА ==========
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
         // Настройки игры
-        let snake = [{x: 10, y: 10}];
+        let snake = [
+            {x: 10, y: 10},
+            {x: 9, y: 10},
+            {x: 8, y: 10},
+            {x: 7, y: 10}  // Начинаем с 4 сегментов для S-формы
+        ];
         let direction = {x: 1, y: 0};
         let nextDirection = {x: 1, y: 0};
         let food = {x: 15, y: 15};
@@ -426,23 +274,19 @@
         let gamePaused = false;
         let gameInterval;
         
-        // Скорость игры (в миллисекундах)
-        let currentSpeed = 200; // нормальная скорость
+        // Скорость
+        let currentSpeed = 200;
         const speedSettings = {
-            slow: 300,    // медленно
-            normal: 200,  // нормально
-            fast: 120,    // быстро
-            turbo: 70     // турбо!
+            slow: 300,
+            normal: 200,
+            fast: 120,
+            turbo: 70
         };
         
-        // Счет
         const scoreSpan = document.getElementById('score');
         const highScoreSpan = document.getElementById('highScore');
         let highScore = localStorage.getItem('snakeHighScore') || 0;
         highScoreSpan.textContent = highScore;
-
-        // Текущий режим
-        let currentMode = 'classic';
 
         // Создание еды
         function createFood() {
@@ -459,18 +303,19 @@
             }
         }
 
-        // Отрисовка
+        // Отрисовка КВАДРАТНОЙ S-змейки
         function draw() {
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = '#f8fafc';
             ctx.fillRect(0, 0, 400, 400);
             
-            // Сетка
+            // Рисуем сетку (бледную)
             ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 0.5;
+            ctx.lineWidth = 1;
             for (let i = 0; i <= 20; i++) {
                 ctx.beginPath();
                 ctx.moveTo(i * 20, 0);
                 ctx.lineTo(i * 20, 400);
+                ctx.strokeStyle = '#cbd5e0';
                 ctx.stroke();
                 
                 ctx.beginPath();
@@ -479,44 +324,45 @@
                 ctx.stroke();
             }
             
-            // Змейка
+            // Рисуем змейку КВАДРАТАМИ
             for (let i = 0; i < snake.length; i++) {
+                const segment = snake[i];
+                
+                // Основной квадрат
                 if (i === 0) {
-                    ctx.fillStyle = '#2E7D32';
-                    ctx.fillRect(snake[i].x * 20, snake[i].y * 20, 18, 18);
+                    // Голова - темно-зеленый квадрат
+                    ctx.fillStyle = '#1e4d1e';
+                    ctx.fillRect(segment.x * 20 + 1, segment.y * 20 + 1, 18, 18);
                     
-                    // Глазки
+                    // Глазки (маленькие квадратики вместо кружков)
                     ctx.fillStyle = 'white';
-                    ctx.beginPath();
-                    ctx.arc(snake[i].x * 20 + 5, snake[i].y * 20 + 5, 3, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(snake[i].x * 20 + 15, snake[i].y * 20 + 5, 3, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.fillRect(segment.x * 20 + 5, segment.y * 20 + 5, 3, 3);
+                    ctx.fillRect(segment.x * 20 + 12, segment.y * 20 + 5, 3, 3);
                     
                     ctx.fillStyle = 'black';
-                    ctx.beginPath();
-                    ctx.arc(snake[i].x * 20 + 5, snake[i].y * 20 + 5, 1.5, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(snake[i].x * 20 + 15, snake[i].y * 20 + 5, 1.5, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.fillRect(segment.x * 20 + 6, segment.y * 20 + 6, 2, 2);
+                    ctx.fillRect(segment.x * 20 + 13, segment.y * 20 + 6, 2, 2);
                 } else {
-                    ctx.fillStyle = '#4CAF50';
-                    ctx.fillRect(snake[i].x * 20, snake[i].y * 20, 18, 18);
+                    // Тело - градиент от зеленого к темно-зеленому для S-эффекта
+                    const greenValue = 100 + (i * 5);
+                    ctx.fillStyle = `rgb(40, ${greenValue}, 40)`;
+                    ctx.fillRect(segment.x * 20 + 2, segment.y * 20 + 2, 16, 16);
+                    
+                    // Добавляем узор для S-эффекта
+                    if (i % 2 === 0) {
+                        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                        ctx.fillRect(segment.x * 20 + 5, segment.y * 20 + 5, 4, 4);
+                    }
                 }
             }
             
-            // Еда
-            ctx.fillStyle = '#f44336';
-            ctx.beginPath();
-            ctx.arc(food.x * 20 + 10, food.y * 20 + 10, 8, 0, Math.PI * 2);
-            ctx.fill();
+            // Рисуем еду (квадратную)
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(food.x * 20 + 2, food.y * 20 + 2, 16, 16);
             
-            ctx.fillStyle = '#ffcdd2';
-            ctx.beginPath();
-            ctx.arc(food.x * 20 + 6, food.y * 20 + 6, 3, 0, Math.PI * 2);
-            ctx.fill();
+            // Блик на еде (маленький белый квадратик)
+            ctx.fillStyle = '#fecaca';
+            ctx.fillRect(food.x * 20 + 5, food.y * 20 + 5, 4, 4);
         }
 
         // Движение
@@ -530,11 +376,13 @@
                 y: snake[0].y + direction.y
             };
             
+            // Проверка стен
             if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
                 gameOver();
                 return;
             }
             
+            // Проверка себя
             for (let segment of snake) {
                 if (head.x === segment.x && head.y === segment.y) {
                     gameOver();
@@ -544,6 +392,7 @@
             
             snake.unshift(head);
             
+            // Проверка еды
             if (head.x === food.x && head.y === food.y) {
                 score += 10;
                 scoreSpan.textContent = score;
@@ -555,22 +404,16 @@
             draw();
         }
 
-        // ===== НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ СКОРОСТИ =====
+        // Управление скоростью
         function setSpeed(speedType) {
-            // Обновляем скорость
             currentSpeed = speedSettings[speedType];
+            document.getElementById('speedDisplay').textContent = currentSpeed + ' ms';
             
-            // Обновляем отображение
-            const speedDisplay = document.getElementById('speedDisplay');
-            speedDisplay.textContent = currentSpeed + ' ms';
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.speed-btn').forEach(btn => {
+            document.querySelectorAll('.speed-option').forEach(btn => {
                 btn.classList.remove('active');
             });
             document.getElementById('speed' + speedType.charAt(0).toUpperCase() + speedType.slice(1)).classList.add('active');
             
-            // Перезапускаем интервал, если игра запущена
             if (gameRunning && !gamePaused) {
                 clearInterval(gameInterval);
                 gameInterval = setInterval(move, currentSpeed);
@@ -587,14 +430,18 @@
                 highScoreSpan.textContent = highScore;
             }
             
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            // Рисуем сообщение квадратными буквами
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
             ctx.fillRect(0, 0, 400, 400);
+            
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 24px Arial';
+            ctx.font = 'bold 24px "Courier New", monospace';
             ctx.textAlign = 'center';
-            ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 200);
-            ctx.font = '20px Arial';
-            ctx.fillText('Счёт: ' + score, 200, 250);
+            ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 180);
+            ctx.font = '20px "Courier New", monospace';
+            ctx.fillText('Счёт: ' + score, 200, 240);
+            ctx.font = '16px "Courier New", monospace';
+            ctx.fillText('Нажми СТАРТ', 200, 300);
         }
 
         function startGame() {
@@ -604,7 +451,14 @@
                 return;
             }
             
-            snake = [{x: 10, y: 10}];
+            // S-образное начальное положение
+            snake = [
+                {x: 10, y: 10},
+                {x: 9, y: 10},
+                {x: 8, y: 10},
+                {x: 7, y: 10},
+                {x: 6, y: 10}  // Добавил еще один сегмент для S-формы
+            ];
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
             score = 0;
@@ -628,7 +482,7 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fillRect(0, 0, 400, 400);
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 24px Arial';
+                ctx.font = 'bold 24px "Courier New", monospace';
                 ctx.textAlign = 'center';
                 ctx.fillText('ПАУЗА', 200, 200);
             } else {
@@ -641,7 +495,13 @@
             gamePaused = false;
             clearInterval(gameInterval);
             
-            snake = [{x: 10, y: 10}];
+            snake = [
+                {x: 10, y: 10},
+                {x: 9, y: 10},
+                {x: 8, y: 10},
+                {x: 7, y: 10},
+                {x: 6, y: 10}
+            ];
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
             score = 0;
@@ -651,67 +511,14 @@
             document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
         }
 
-        // ========== УПРАВЛЕНИЕ НАПРАВЛЕНИЕМ ==========
+        // Управление направлением (только стрелки)
         function setDirection(x, y) {
             if (!gameRunning || gamePaused) return;
             if (direction.x === -x || direction.y === -y) return;
             nextDirection = {x, y};
-            
-            // Показываем направление в свайп-режиме
-            if (currentMode === 'swipe') {
-                const hint = document.getElementById('swipeDirection');
-                if (x === 0 && y === -1) hint.textContent = '⬆️ Вверх';
-                else if (x === 0 && y === 1) hint.textContent = '⬇️ Вниз';
-                else if (x === -1 && y === 0) hint.textContent = '⬅️ Влево';
-                else if (x === 1 && y === 0) hint.textContent = '➡️ Вправо';
-            }
         }
 
-        // ========== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ==========
-        function switchMode(mode) {
-            currentMode = mode;
-            
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            document.getElementById('classicControls').classList.add('hidden');
-            document.getElementById('joystickControls').classList.add('hidden');
-            document.getElementById('swipeControls').classList.add('hidden');
-            
-            if (mode === 'classic') {
-                document.getElementById('modeClassic').classList.add('active');
-                document.getElementById('classicControls').classList.remove('hidden');
-            } else if (mode === 'joystick') {
-                document.getElementById('modeJoystick').classList.add('active');
-                document.getElementById('joystickControls').classList.remove('hidden');
-            } else if (mode === 'swipe') {
-                document.getElementById('modeSwipe').classList.add('active');
-                document.getElementById('swipeControls').classList.remove('hidden');
-            }
-        }
-
-        // ========== НАСТРОЙКА УПРАВЛЕНИЯ ==========
-        
-        // Кнопки скорости
-        document.getElementById('speedSlow').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('slow');
-        });
-        document.getElementById('speedNormal').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('normal');
-        });
-        document.getElementById('speedFast').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('fast');
-        });
-        document.getElementById('speedTurbo').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('turbo');
-        });
-        
-        // РЕЖИМ 1: Классические кнопки
+        // Стрелки
         document.getElementById('upBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             setDirection(0, -1);
@@ -729,55 +536,22 @@
             setDirection(1, 0);
         });
 
-        // РЕЖИМ 2: Джойстик
-        document.getElementById('joyUpBtn').addEventListener('touchstart', (e) => {
+        // Скорость
+        document.getElementById('speedSlow').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            setDirection(0, -1);
+            setSpeed('slow');
         });
-        document.getElementById('joyDownBtn').addEventListener('touchstart', (e) => {
+        document.getElementById('speedNormal').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            setDirection(0, 1);
+            setSpeed('normal');
         });
-        document.getElementById('joyLeftBtn').addEventListener('touchstart', (e) => {
+        document.getElementById('speedFast').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            setDirection(-1, 0);
+            setSpeed('fast');
         });
-        document.getElementById('joyRightBtn').addEventListener('touchstart', (e) => {
+        document.getElementById('speedTurbo').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            setDirection(1, 0);
-        });
-
-        // РЕЖИМ 3: Свайп
-        const swipeArea = document.getElementById('swipeArea');
-        let touchStart = {x: 0, y: 0};
-        
-        swipeArea.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchStart.x = e.touches[0].clientX;
-            touchStart.y = e.touches[0].clientY;
-        });
-        
-        swipeArea.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (!touchStart.x || !touchStart.y) return;
-            
-            const touchEnd = {
-                x: e.changedTouches[0].clientX,
-                y: e.changedTouches[0].clientY
-            };
-            
-            const diffX = touchStart.x - touchEnd.x;
-            const diffY = touchStart.y - touchEnd.y;
-            
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
-                if (diffX > 0) setDirection(-1, 0);
-                else setDirection(1, 0);
-            } else if (Math.abs(diffY) > 30) {
-                if (diffY > 0) setDirection(0, -1);
-                else setDirection(0, 1);
-            }
-            
-            touchStart = {x: 0, y: 0};
+            setSpeed('turbo');
         });
 
         // Клавиатура
@@ -793,7 +567,7 @@
             }
         });
 
-        // Кнопки управления
+        // Кнопки управления игрой
         document.getElementById('startBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             startGame();
@@ -807,23 +581,8 @@
             resetGame();
         });
 
-        // Переключение режимов
-        document.getElementById('modeClassic').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            switchMode('classic');
-        });
-        document.getElementById('modeJoystick').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            switchMode('joystick');
-        });
-        document.getElementById('modeSwipe').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            switchMode('swipe');
-        });
-
-        // Блокировка всех жестов
+        // Блокировка жестов
         document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-        document.body.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
         // Начало
