@@ -2,23 +2,152 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Существо: Биография и Строение</title>
+    <title>Subway Surfer Pro 2026</title>
     <style>
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: #d1d1ca; /* Светло-серый фон (как на видео) */
-            touch-action: none; /* Запрет системных жестов на телефоне */
-        }
-        canvas { display: block; width: 100vw; height: 100vh; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #fff; z-index: 10; pointer-events: none; }
+        #score { font-size: 40px; color: #ffd700; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        #best { font-size: 18px; color: #00d4ff; }
+        .hint { position: absolute; bottom: 20px; width: 100%; text-align: center; color: #555; font-size: 12px; }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script src="DNP.js"></script>
+    <div id="ui">
+        <div id="score">0</div>
+        <div id="best">BEST: 0</div>
+    </div>
+    <div class="hint">СТРЕЛКИ: ВЛЕВО / ВПРАВО | ПРОБЕЛ: ПРЫЖОК</div>
+
+    <!-- Библиотека для 3D графики -->
+    <script src="https://cdnjs.cloudflare.com"></script>
+
+    <script>
+        let scene, camera, renderer, player;
+        let score = 0, isGameOver = false, speed = 0.7;
+        let lanes = [-2.5, 0, 2.5], currentLane = 1;
+        let obstacles = [], coins = [];
+        let highScore = localStorage.getItem('subwayBest') || 0;
+
+        document.getElementById('best').innerText = "BEST: " + highScore;
+
+        function init() {
+            // 1. Создаем мир
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 10, 150); // Туман для глубины
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // 2. Свет
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            const light = new THREE.PointLight(0x00d4ff, 2, 50);
+            light.position.set(0, 10, 5);
+            scene.add(light);
+
+            // 3. Дорога
+            const road = new THREE.Mesh(
+                new THREE.PlaneGeometry(10, 2000), 
+                new THREE.MeshPhongMaterial({ color: 0x111111 })
+            );
+            road.rotation.x = -Math.PI / 2;
+            scene.add(road);
+
+            // 4. Игрок (Стилизованный персонаж)
+            player = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), new THREE.MeshPhongMaterial({color: 0x00d4ff}));
+            body.position.y = 0.6;
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshPhongMaterial({color: 0xffffff}));
+            head.position.y = 1.5;
+            player.add(body);
+            player.add(head);
+            player.position.set(lanes[currentLane], 0, 0);
+            scene.add(player);
+
+            camera.position.set(0, 5, 10);
+            camera.lookAt(0, 1, 0);
+
+            // 5. Управление
+            window.addEventListener('keydown', (e) => {
+                if(isGameOver) return;
+                if(e.key === "ArrowLeft" && currentLane > 0) currentLane--;
+                if(e.key === "ArrowRight" && currentLane < 2) currentLane++;
+                if(e.key === " " && player.position.y <= 0.1) jump();
+            });
+
+            spawnLoop();
+            animate();
+        }
+
+        function jump() {
+            let p = 0.3, g = 0.015;
+            let j = setInterval(() => {
+                player.position.y += p; p -= g;
+                if(player.position.y <= 0) { player.position.y = 0; clearInterval(j); }
+            }, 20);
+        }
+
+        function spawnLoop() {
+            if(isGameOver) return;
+            let lane = lanes[Math.floor(Math.random()*3)];
+            
+            if(Math.random() > 0.4) {
+                // ПОЕЗД
+                const tr = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 7), new THREE.MeshPhongMaterial({color: 0xff3333}));
+                tr.position.set(lane, 1.5, -120);
+                scene.add(tr);
+                obstacles.push(tr);
+            } else {
+                // МОНЕТКА
+                const cn = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.1, 8, 20), new THREE.MeshPhongMaterial({color: 0xffd700}));
+                cn.position.set(lane, 1, -120);
+                cn.rotation.y = Math.PI/2;
+                scene.add(cn);
+                coins.push(cn);
+            }
+            setTimeout(spawnLoop, 800 - Math.min(score * 2, 400));
+        }
+
+        function animate() {
+            if(isGameOver) return;
+            requestAnimationFrame(animate);
+
+            // Движение игрока
+            player.position.x = THREE.MathUtils.lerp(player.position.x, lanes[currentLane], 0.2);
+
+            // Препятствия
+            obstacles.forEach((o, i) => {
+                o.position.z += speed;
+                if(Math.abs(o.position.z - player.position.z) < 1.5 && Math.abs(o.position.x - player.position.x) < 1.2 && player.position.y < 2) {
+                    gameOver();
+                }
+                if(o.position.z > 15) { scene.remove(o); obstacles.splice(i, 1); }
+            });
+
+            // Монеты
+            coins.forEach((c, i) => {
+                c.position.z += speed;
+                c.rotation.z += 0.1;
+                if(Math.abs(c.position.z - player.position.z) < 1.2 && Math.abs(c.position.x - player.position.x) < 1) {
+                    scene.remove(c); coins.splice(i, 1);
+                    score += 10; speed += 0.003;
+                    document.getElementById('score').innerText = score;
+                }
+                if(c.position.z > 15) { scene.remove(c); coins.splice(i, 1); }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            if(score > highScore) localStorage.setItem('subwayBest', score);
+            alert("ИГРА ОКОНЧЕНА! Твой результат: " + score);
+            location.reload();
+        }
+
+        init();
+    </script>
 </body>
 </html>
