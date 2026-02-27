@@ -2,26 +2,19 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐍 Змейка - Простая и быстрая</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐍 Змейка</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
         body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -30,102 +23,51 @@
         }
         
         .game-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 40px;
+            background: white;
+            border-radius: 30px;
             padding: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 450px;
-            margin: auto;
         }
         
         h1 {
             text-align: center;
             color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 36px;
+            margin-bottom: 20px;
         }
         
-        /* Статистика */
         .stats {
             display: flex;
             justify-content: space-between;
             background: #f0f0f0;
-            padding: 12px 20px;
-            border-radius: 40px;
-            margin: 10px 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        /* Блок скорости - ТОЛЬКО 3 КНОПКИ */
-        .speed-panel {
-            background: #4a5568;
+            padding: 15px 25px;
             border-radius: 50px;
-            padding: 12px;
             margin: 15px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
-        
-        .speed-label {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            margin-left: 10px;
         }
         
-        .speed-buttons {
-            display: flex;
-            gap: 5px;
-            background: #2d3748;
-            padding: 5px;
-            border-radius: 40px;
-        }
-        
-        .speed-option {
-            background: transparent;
-            color: #a0aec0;
-            border: none;
-            padding: 8px 15px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .speed-option.active {
-            background: #667eea;
-            color: white;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
-        }
-        
-        /* Канвас - игровое поле */
         .canvas-wrapper {
             display: flex;
             justify-content: center;
-            margin: 15px 0;
+            margin: 20px 0;
         }
         
         canvas {
             width: 100%;
             max-width: 350px;
             height: auto;
-            aspect-ratio: 1/1;
             border: 4px solid #4a5568;
             border-radius: 20px;
             background: #fff;
-            touch-action: none;
         }
         
-        /* Кнопки управления игрой */
         .game-controls {
             display: flex;
             gap: 10px;
-            margin: 15px 0;
+            margin: 20px 0;
         }
         
         .game-btn {
@@ -133,7 +75,7 @@
             color: white;
             border: none;
             padding: 15px 0;
-            font-size: 18px;
+            font-size: 20px;
             border-radius: 40px;
             cursor: pointer;
             flex: 1;
@@ -145,13 +87,16 @@
             transform: scale(0.95);
         }
         
-        /* Стрелки управления - УВЕЛИЧЕННЫЕ */
+        /* ТОЛЬКО СТРЕЛКИ - БОЛЬШИЕ */
         .arrow-controls {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            margin: 20px 0 5px;
+            margin: 20px 0;
+            background: #e2e8f0;
+            padding: 25px;
+            border-radius: 40px;
         }
         
         .arrow-row {
@@ -174,39 +119,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: none;
         }
         
         .arrow-btn:active {
             transform: translateY(8px);
-            box-shadow: 0 0 0 #2d3748;
+            box-shadow: none;
             background: #2d3748;
         }
         
-        /* Предупреждение */
-        .warning {
+        .hint {
             text-align: center;
-            color: #e53e3e;
-            font-size: 14px;
+            color: #4a5568;
+            font-size: 18px;
             font-weight: bold;
-            margin: 10px 0 0;
-            padding: 5px;
-            background: #fed7d7;
-            border-radius: 20px;
-        }
-        
-        /* Адаптация */
-        @media (max-width: 400px) {
-            .arrow-btn {
-                width: 80px;
-                height: 80px;
-                font-size: 45px;
-            }
-            
-            .speed-option {
-                padding: 6px 12px;
-                font-size: 14px;
-            }
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -214,35 +140,22 @@
     <div class="game-container">
         <h1>🐍 ЗМЕЙКА</h1>
         
-        <!-- Статистика -->
         <div class="stats">
-            <span>⚡ Счёт: <span id="score">0</span></span>
-            <span>🏆 Рекорд: <span id="highScore">0</span></span>
+            <span>⚡ <span id="score">0</span></span>
+            <span>🏆 <span id="highScore">0</span></span>
         </div>
 
-        <!-- ТОЛЬКО 3 СКОРОСТИ -->
-        <div class="speed-panel">
-            <span class="speed-label">⚡ Скорость</span>
-            <div class="speed-buttons">
-                <button class="speed-option" id="speedSlow">Медл</button>
-                <button class="speed-option active" id="speedNormal">Норм</button>
-                <button class="speed-option" id="speedFast">Быстр</button>
-            </div>
-        </div>
-
-        <!-- Игровое поле -->
         <div class="canvas-wrapper">
             <canvas id="gameCanvas" width="400" height="400"></canvas>
         </div>
 
-        <!-- Кнопки управления игрой -->
         <div class="game-controls">
             <button class="game-btn" id="startBtn">▶ СТАРТ</button>
             <button class="game-btn" id="pauseBtn">⏸ ПАУЗА</button>
             <button class="game-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <!-- БОЛЬШИЕ СТРЕЛКИ -->
+        <!-- ТОЛЬКО СТРЕЛКИ -->
         <div class="arrow-controls">
             <div class="arrow-row">
                 <button class="arrow-btn" id="upBtn">⬆️</button>
@@ -254,9 +167,8 @@
             </div>
         </div>
         
-        <!-- Предупреждение -->
-        <div class="warning" id="warning">
-            👆 Нажимай на стрелки - они большие!
+        <div class="hint" id="hint">
+            👇 НАЖМИ СТАРТ И ИГРАЙ
         </div>
     </div>
 
@@ -264,7 +176,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Настройки игры - ПРОСТЫЕ
+        // Настройки игры - ТОЛЬКО НОРМАЛЬНАЯ СКОРОСТЬ 100
         let snake = [
             {x: 10, y: 10},
             {x: 9, y: 10},
@@ -278,20 +190,14 @@
         let gamePaused = false;
         let gameInterval;
         
-        // ТОЛЬКО 3 СКОРОСТИ
-        let currentSpeed = 200; // нормальная
-        const speedSettings = {
-            slow: 300,    // медленно
-            normal: 200,  // нормально
-            fast: 100     // быстро (убрал турбо)
-        };
+        // ФИКСИРОВАННАЯ СКОРОСТЬ 100ms
+        const SPEED = 100;
         
         const scoreSpan = document.getElementById('score');
         const highScoreSpan = document.getElementById('highScore');
         let highScore = localStorage.getItem('snakeHighScore') || 0;
         highScoreSpan.textContent = highScore;
 
-        // Создание еды
         function createFood() {
             food = {
                 x: Math.floor(Math.random() * 20),
@@ -307,13 +213,12 @@
             }
         }
 
-        // Отрисовка - ПРОСТАЯ И ЯРКАЯ
         function draw() {
             // Фон
             ctx.fillStyle = '#f8fafc';
             ctx.fillRect(0, 0, 400, 400);
             
-            // Сетка (бледная)
+            // Сетка
             ctx.strokeStyle = '#cbd5e0';
             ctx.lineWidth = 0.5;
             for (let i = 0; i <= 20; i++) {
@@ -328,16 +233,16 @@
                 ctx.stroke();
             }
             
-            // Змейка - ЯРКИЕ КВАДРАТЫ
+            // Змейка - квадратная
             for (let i = 0; i < snake.length; i++) {
                 const seg = snake[i];
                 
                 if (i === 0) {
-                    // Голова - темно-зеленая
+                    // Голова
                     ctx.fillStyle = '#166534';
                     ctx.fillRect(seg.x * 20 + 2, seg.y * 20 + 2, 16, 16);
                     
-                    // Глаза - белые квадратики
+                    // Глаза
                     ctx.fillStyle = 'white';
                     ctx.fillRect(seg.x * 20 + 5, seg.y * 20 + 5, 3, 3);
                     ctx.fillRect(seg.x * 20 + 12, seg.y * 20 + 5, 3, 3);
@@ -346,28 +251,17 @@
                     ctx.fillRect(seg.x * 20 + 6, seg.y * 20 + 6, 2, 2);
                     ctx.fillRect(seg.x * 20 + 13, seg.y * 20 + 6, 2, 2);
                 } else {
-                    // Тело - зеленое
+                    // Тело
                     ctx.fillStyle = '#22c55e';
                     ctx.fillRect(seg.x * 20 + 2, seg.y * 20 + 2, 16, 16);
-                    
-                    // Узор для текстуры
-                    if (i % 2 === 0) {
-                        ctx.fillStyle = '#16a34a';
-                        ctx.fillRect(seg.x * 20 + 8, seg.y * 20 + 8, 6, 6);
-                    }
                 }
             }
             
-            // Еда - красный квадрат
+            // Еда
             ctx.fillStyle = '#dc2626';
             ctx.fillRect(food.x * 20 + 4, food.y * 20 + 4, 12, 12);
-            
-            // Блик на еде
-            ctx.fillStyle = '#fecaca';
-            ctx.fillRect(food.x * 20 + 7, food.y * 20 + 7, 4, 4);
         }
 
-        // Движение
         function move() {
             if (!gameRunning || gamePaused) return;
             
@@ -406,36 +300,6 @@
             draw();
         }
 
-        // Управление скоростью (только 3 режима)
-        function setSpeed(speedType) {
-            currentSpeed = speedSettings[speedType];
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.speed-option').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById('speed' + speedType.charAt(0).toUpperCase() + speedType.slice(1)).classList.add('active');
-            
-            // Показываем предупреждение
-            const warning = document.getElementById('warning');
-            if (speedType === 'fast') {
-                warning.textContent = '⚡ Быстро! Будь внимателен!';
-                warning.style.color = '#e53e3e';
-            } else if (speedType === 'slow') {
-                warning.textContent = '🐢 Медленно - учись управлять';
-                warning.style.color = '#4a5568';
-            } else {
-                warning.textContent = '👆 Нажимай на стрелки - они большие!';
-                warning.style.color = '#e53e3e';
-            }
-            
-            // Перезапускаем интервал
-            if (gameRunning && !gamePaused) {
-                clearInterval(gameInterval);
-                gameInterval = setInterval(move, currentSpeed);
-            }
-        }
-
         function gameOver() {
             gameRunning = false;
             clearInterval(gameInterval);
@@ -446,7 +310,7 @@
                 highScoreSpan.textContent = highScore;
             }
             
-            // Сообщение о конце игры
+            // Сообщение
             ctx.fillStyle = 'rgba(0,0,0,0.8)';
             ctx.fillRect(0, 0, 400, 400);
             
@@ -458,8 +322,7 @@
             ctx.fillText('Счёт: ' + score, 200, 240);
             ctx.fillText('Нажми СТАРТ', 200, 300);
             
-            // Предупреждение
-            document.getElementById('warning').textContent = '💀 Игра окончена - начни заново';
+            document.getElementById('hint').textContent = '💀 Игра окончена - нажми СТАРТ';
         }
 
         function startGame() {
@@ -484,10 +347,10 @@
             gamePaused = false;
             
             if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(move, currentSpeed);
+            gameInterval = setInterval(move, SPEED); // ВСЕГДА 100ms
             draw();
             
-            document.getElementById('warning').textContent = '🎮 Игра началась! Жми стрелки!';
+            document.getElementById('hint').textContent = '🎮 ЖМИ НА СТРЕЛКИ ВНИЗУ!';
         }
 
         function pauseGame() {
@@ -503,10 +366,10 @@
                 ctx.font = 'bold 24px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('ПАУЗА', 200, 200);
-                document.getElementById('warning').textContent = '⏸ Пауза - отдохни';
+                document.getElementById('hint').textContent = '⏸ Пауза';
             } else {
                 draw();
-                document.getElementById('warning').textContent = '🎮 Продолжаем!';
+                document.getElementById('hint').textContent = '🎮 ИГРАЕМ!';
             }
         }
 
@@ -527,17 +390,17 @@
             createFood();
             draw();
             document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
-            document.getElementById('warning').textContent = '🔄 Игра сброшена - нажми СТАРТ';
+            document.getElementById('hint').textContent = '🔄 Игра сброшена - нажми СТАРТ';
         }
 
-        // Управление стрелками - ПРОСТОЕ
+        // Управление СТРЕЛКАМИ
         function setDirection(x, y) {
             if (!gameRunning || gamePaused) return;
             if (direction.x === -x || direction.y === -y) return;
             nextDirection = {x, y};
         }
 
-        // Большие стрелки - обработка нажатий
+        // Стрелки на телефоне
         document.getElementById('upBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             setDirection(0, -1);
@@ -555,21 +418,7 @@
             setDirection(1, 0);
         });
 
-        // Скорость
-        document.getElementById('speedSlow').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('slow');
-        });
-        document.getElementById('speedNormal').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('normal');
-        });
-        document.getElementById('speedFast').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('fast');
-        });
-
-        // Клавиатура для компа
+        // Стрелки на клавиатуре
         document.addEventListener('keydown', (e) => {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
@@ -596,7 +445,7 @@
             resetGame();
         });
 
-        // Блокировка жестов
+        // Блокировка скролла
         document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
