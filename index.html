@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐍 Квадратная S-змейка</title>
+    <title>🐍 Змейка - Простая и быстрая</title>
     <style>
         * {
             margin: 0;
@@ -45,7 +45,6 @@
             color: #333;
             font-size: 28px;
             margin-bottom: 10px;
-            letter-spacing: 2px;
         }
         
         /* Статистика */
@@ -60,7 +59,7 @@
             font-weight: bold;
         }
         
-        /* Блок скорости - ВСЕ В ОДНОМ */
+        /* Блок скорости - ТОЛЬКО 3 КНОПКИ */
         .speed-panel {
             background: #4a5568;
             border-radius: 50px;
@@ -104,17 +103,7 @@
             box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
         }
         
-        .speed-value {
-            background: #2d3748;
-            color: #667eea;
-            padding: 8px 15px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        /* Канвас */
+        /* Канвас - игровое поле */
         .canvas-wrapper {
             display: flex;
             justify-content: center;
@@ -129,7 +118,7 @@
             border: 4px solid #4a5568;
             border-radius: 20px;
             background: #fff;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            touch-action: none;
         }
         
         /* Кнопки управления игрой */
@@ -156,18 +145,18 @@
             transform: scale(0.95);
         }
         
-        /* Кнопки управления змейкой - ТОЛЬКО СТРЕЛКИ */
+        /* Стрелки управления - УВЕЛИЧЕННЫЕ */
         .arrow-controls {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            margin: 20px 0 10px;
+            gap: 15px;
+            margin: 20px 0 5px;
         }
         
         .arrow-row {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             justify-content: center;
         }
         
@@ -175,34 +164,47 @@
             background: #4a5568;
             color: white;
             border: none;
-            width: 80px;
-            height: 80px;
-            font-size: 40px;
-            border-radius: 20px;
+            width: 90px;
+            height: 90px;
+            font-size: 50px;
+            border-radius: 25px;
             cursor: pointer;
-            box-shadow: 0 5px 0 #2d3748;
+            box-shadow: 0 8px 0 #2d3748;
             transition: all 0.05s;
             display: flex;
             align-items: center;
             justify-content: center;
+            touch-action: none;
         }
         
         .arrow-btn:active {
-            transform: translateY(5px);
+            transform: translateY(8px);
             box-shadow: 0 0 0 #2d3748;
             background: #2d3748;
         }
         
-        /* Адаптация для маленьких экранов */
+        /* Предупреждение */
+        .warning {
+            text-align: center;
+            color: #e53e3e;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 10px 0 0;
+            padding: 5px;
+            background: #fed7d7;
+            border-radius: 20px;
+        }
+        
+        /* Адаптация */
         @media (max-width: 400px) {
             .arrow-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 35px;
+                width: 80px;
+                height: 80px;
+                font-size: 45px;
             }
             
             .speed-option {
-                padding: 6px 10px;
+                padding: 6px 12px;
                 font-size: 14px;
             }
         }
@@ -210,7 +212,7 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>🐍 S-ЗМЕЙКА</h1>
+        <h1>🐍 ЗМЕЙКА</h1>
         
         <!-- Статистика -->
         <div class="stats">
@@ -218,16 +220,14 @@
             <span>🏆 Рекорд: <span id="highScore">0</span></span>
         </div>
 
-        <!-- ВСЯ СКОРОСТЬ В ОДНОМ БЛОКЕ -->
+        <!-- ТОЛЬКО 3 СКОРОСТИ -->
         <div class="speed-panel">
             <span class="speed-label">⚡ Скорость</span>
             <div class="speed-buttons">
                 <button class="speed-option" id="speedSlow">Медл</button>
                 <button class="speed-option active" id="speedNormal">Норм</button>
                 <button class="speed-option" id="speedFast">Быстр</button>
-                <button class="speed-option" id="speedTurbo">Турбо</button>
             </div>
-            <span class="speed-value" id="speedDisplay">200 ms</span>
         </div>
 
         <!-- Игровое поле -->
@@ -242,7 +242,7 @@
             <button class="game-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
 
-        <!-- ТОЛЬКО СТРЕЛКИ для управления -->
+        <!-- БОЛЬШИЕ СТРЕЛКИ -->
         <div class="arrow-controls">
             <div class="arrow-row">
                 <button class="arrow-btn" id="upBtn">⬆️</button>
@@ -253,18 +253,22 @@
                 <button class="arrow-btn" id="rightBtn">➡️</button>
             </div>
         </div>
+        
+        <!-- Предупреждение -->
+        <div class="warning" id="warning">
+            👆 Нажимай на стрелки - они большие!
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Настройки игры
+        // Настройки игры - ПРОСТЫЕ
         let snake = [
             {x: 10, y: 10},
             {x: 9, y: 10},
-            {x: 8, y: 10},
-            {x: 7, y: 10}  // Начинаем с 4 сегментов для S-формы
+            {x: 8, y: 10}
         ];
         let direction = {x: 1, y: 0};
         let nextDirection = {x: 1, y: 0};
@@ -274,13 +278,12 @@
         let gamePaused = false;
         let gameInterval;
         
-        // Скорость
-        let currentSpeed = 200;
+        // ТОЛЬКО 3 СКОРОСТИ
+        let currentSpeed = 200; // нормальная
         const speedSettings = {
-            slow: 300,
-            normal: 200,
-            fast: 120,
-            turbo: 70
+            slow: 300,    // медленно
+            normal: 200,  // нормально
+            fast: 100     // быстро (убрал турбо)
         };
         
         const scoreSpan = document.getElementById('score');
@@ -295,6 +298,7 @@
                 y: Math.floor(Math.random() * 20)
             };
             
+            // Проверка, не на змейке ли
             for (let segment of snake) {
                 if (segment.x === food.x && segment.y === food.y) {
                     createFood();
@@ -303,19 +307,19 @@
             }
         }
 
-        // Отрисовка КВАДРАТНОЙ S-змейки
+        // Отрисовка - ПРОСТАЯ И ЯРКАЯ
         function draw() {
+            // Фон
             ctx.fillStyle = '#f8fafc';
             ctx.fillRect(0, 0, 400, 400);
             
-            // Рисуем сетку (бледную)
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 1;
+            // Сетка (бледная)
+            ctx.strokeStyle = '#cbd5e0';
+            ctx.lineWidth = 0.5;
             for (let i = 0; i <= 20; i++) {
                 ctx.beginPath();
                 ctx.moveTo(i * 20, 0);
                 ctx.lineTo(i * 20, 400);
-                ctx.strokeStyle = '#cbd5e0';
                 ctx.stroke();
                 
                 ctx.beginPath();
@@ -324,45 +328,43 @@
                 ctx.stroke();
             }
             
-            // Рисуем змейку КВАДРАТАМИ
+            // Змейка - ЯРКИЕ КВАДРАТЫ
             for (let i = 0; i < snake.length; i++) {
-                const segment = snake[i];
+                const seg = snake[i];
                 
-                // Основной квадрат
                 if (i === 0) {
-                    // Голова - темно-зеленый квадрат
-                    ctx.fillStyle = '#1e4d1e';
-                    ctx.fillRect(segment.x * 20 + 1, segment.y * 20 + 1, 18, 18);
+                    // Голова - темно-зеленая
+                    ctx.fillStyle = '#166534';
+                    ctx.fillRect(seg.x * 20 + 2, seg.y * 20 + 2, 16, 16);
                     
-                    // Глазки (маленькие квадратики вместо кружков)
+                    // Глаза - белые квадратики
                     ctx.fillStyle = 'white';
-                    ctx.fillRect(segment.x * 20 + 5, segment.y * 20 + 5, 3, 3);
-                    ctx.fillRect(segment.x * 20 + 12, segment.y * 20 + 5, 3, 3);
+                    ctx.fillRect(seg.x * 20 + 5, seg.y * 20 + 5, 3, 3);
+                    ctx.fillRect(seg.x * 20 + 12, seg.y * 20 + 5, 3, 3);
                     
                     ctx.fillStyle = 'black';
-                    ctx.fillRect(segment.x * 20 + 6, segment.y * 20 + 6, 2, 2);
-                    ctx.fillRect(segment.x * 20 + 13, segment.y * 20 + 6, 2, 2);
+                    ctx.fillRect(seg.x * 20 + 6, seg.y * 20 + 6, 2, 2);
+                    ctx.fillRect(seg.x * 20 + 13, seg.y * 20 + 6, 2, 2);
                 } else {
-                    // Тело - градиент от зеленого к темно-зеленому для S-эффекта
-                    const greenValue = 100 + (i * 5);
-                    ctx.fillStyle = `rgb(40, ${greenValue}, 40)`;
-                    ctx.fillRect(segment.x * 20 + 2, segment.y * 20 + 2, 16, 16);
+                    // Тело - зеленое
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(seg.x * 20 + 2, seg.y * 20 + 2, 16, 16);
                     
-                    // Добавляем узор для S-эффекта
+                    // Узор для текстуры
                     if (i % 2 === 0) {
-                        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-                        ctx.fillRect(segment.x * 20 + 5, segment.y * 20 + 5, 4, 4);
+                        ctx.fillStyle = '#16a34a';
+                        ctx.fillRect(seg.x * 20 + 8, seg.y * 20 + 8, 6, 6);
                     }
                 }
             }
             
-            // Рисуем еду (квадратную)
+            // Еда - красный квадрат
             ctx.fillStyle = '#dc2626';
-            ctx.fillRect(food.x * 20 + 2, food.y * 20 + 2, 16, 16);
+            ctx.fillRect(food.x * 20 + 4, food.y * 20 + 4, 12, 12);
             
-            // Блик на еде (маленький белый квадратик)
+            // Блик на еде
             ctx.fillStyle = '#fecaca';
-            ctx.fillRect(food.x * 20 + 5, food.y * 20 + 5, 4, 4);
+            ctx.fillRect(food.x * 20 + 7, food.y * 20 + 7, 4, 4);
         }
 
         // Движение
@@ -404,16 +406,30 @@
             draw();
         }
 
-        // Управление скоростью
+        // Управление скоростью (только 3 режима)
         function setSpeed(speedType) {
             currentSpeed = speedSettings[speedType];
-            document.getElementById('speedDisplay').textContent = currentSpeed + ' ms';
             
+            // Обновляем активную кнопку
             document.querySelectorAll('.speed-option').forEach(btn => {
                 btn.classList.remove('active');
             });
             document.getElementById('speed' + speedType.charAt(0).toUpperCase() + speedType.slice(1)).classList.add('active');
             
+            // Показываем предупреждение
+            const warning = document.getElementById('warning');
+            if (speedType === 'fast') {
+                warning.textContent = '⚡ Быстро! Будь внимателен!';
+                warning.style.color = '#e53e3e';
+            } else if (speedType === 'slow') {
+                warning.textContent = '🐢 Медленно - учись управлять';
+                warning.style.color = '#4a5568';
+            } else {
+                warning.textContent = '👆 Нажимай на стрелки - они большие!';
+                warning.style.color = '#e53e3e';
+            }
+            
+            // Перезапускаем интервал
             if (gameRunning && !gamePaused) {
                 clearInterval(gameInterval);
                 gameInterval = setInterval(move, currentSpeed);
@@ -430,18 +446,20 @@
                 highScoreSpan.textContent = highScore;
             }
             
-            // Рисуем сообщение квадратными буквами
+            // Сообщение о конце игры
             ctx.fillStyle = 'rgba(0,0,0,0.8)';
             ctx.fillRect(0, 0, 400, 400);
             
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 24px "Courier New", monospace';
+            ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('ИГРА ОКОНЧЕНА!', 200, 180);
-            ctx.font = '20px "Courier New", monospace';
+            ctx.font = '20px Arial';
             ctx.fillText('Счёт: ' + score, 200, 240);
-            ctx.font = '16px "Courier New", monospace';
             ctx.fillText('Нажми СТАРТ', 200, 300);
+            
+            // Предупреждение
+            document.getElementById('warning').textContent = '💀 Игра окончена - начни заново';
         }
 
         function startGame() {
@@ -451,13 +469,11 @@
                 return;
             }
             
-            // S-образное начальное положение
+            // Начальная змейка
             snake = [
                 {x: 10, y: 10},
                 {x: 9, y: 10},
-                {x: 8, y: 10},
-                {x: 7, y: 10},
-                {x: 6, y: 10}  // Добавил еще один сегмент для S-формы
+                {x: 8, y: 10}
             ];
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
@@ -470,6 +486,8 @@
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(move, currentSpeed);
             draw();
+            
+            document.getElementById('warning').textContent = '🎮 Игра началась! Жми стрелки!';
         }
 
         function pauseGame() {
@@ -482,11 +500,13 @@
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fillRect(0, 0, 400, 400);
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 24px "Courier New", monospace';
+                ctx.font = 'bold 24px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('ПАУЗА', 200, 200);
+                document.getElementById('warning').textContent = '⏸ Пауза - отдохни';
             } else {
                 draw();
+                document.getElementById('warning').textContent = '🎮 Продолжаем!';
             }
         }
 
@@ -498,9 +518,7 @@
             snake = [
                 {x: 10, y: 10},
                 {x: 9, y: 10},
-                {x: 8, y: 10},
-                {x: 7, y: 10},
-                {x: 6, y: 10}
+                {x: 8, y: 10}
             ];
             direction = {x: 1, y: 0};
             nextDirection = {x: 1, y: 0};
@@ -509,16 +527,17 @@
             createFood();
             draw();
             document.getElementById('pauseBtn').textContent = '⏸ ПАУЗА';
+            document.getElementById('warning').textContent = '🔄 Игра сброшена - нажми СТАРТ';
         }
 
-        // Управление направлением (только стрелки)
+        // Управление стрелками - ПРОСТОЕ
         function setDirection(x, y) {
             if (!gameRunning || gamePaused) return;
             if (direction.x === -x || direction.y === -y) return;
             nextDirection = {x, y};
         }
 
-        // Стрелки
+        // Большие стрелки - обработка нажатий
         document.getElementById('upBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             setDirection(0, -1);
@@ -549,12 +568,8 @@
             e.preventDefault();
             setSpeed('fast');
         });
-        document.getElementById('speedTurbo').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setSpeed('turbo');
-        });
 
-        // Клавиатура
+        // Клавиатура для компа
         document.addEventListener('keydown', (e) => {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
@@ -567,7 +582,7 @@
             }
         });
 
-        // Кнопки управления игрой
+        // Кнопки управления
         document.getElementById('startBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             startGame();
