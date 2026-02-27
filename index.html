@@ -2,66 +2,70 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Subway Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Subway Mobile Fix</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: sans-serif; }
-        #ui { position: absolute; top: 10px; left: 10px; color: #fff; z-index: 10; }
-        #score { font-size: 30px; color: gold; }
+        body { margin: 0; overflow: hidden; background: #000; touch-action: none; }
+        #ui { position: absolute; top: 20px; left: 20px; color: gold; font-size: 40px; font-family: sans-serif; z-index: 100; }
+        #msg { position: absolute; top: 50%; width: 100%; text-align: center; color: white; font-family: sans-serif; }
     </style>
 </head>
 <body>
-    <div id="ui"><div id="score">0</div></div>
+    <div id="ui">0</div>
+    <div id="msg">Загрузка игры...</div>
+
     <script src="https://cdnjs.cloudflare.com"></script>
     <script>
-        let scene, camera, renderer, player;
-        let score = 0, isGameOver = false, speed = 0.7;
+        let scene, camera, renderer, player, road;
+        let score = 0, isGameOver = false, speed = 0.6;
         let lanes = [-2.5, 0, 2.5], currentLane = 1;
-        let obstacles = [], coins = [];
-        let touchStartX = 0, touchStartY = 0;
+        let obstacles = [];
+        let touchStart = {x: 0, y: 0};
 
         function init() {
+            document.getElementById('msg').style.display = 'none';
+            
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x000, 10, 120);
+            scene.background = new THREE.Color(0x87CEEB); // Голубое небо вместо черноты
+            
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            player = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 1), new THREE.MeshPhongMaterial({color: 0x00d4ff}));
-            player.position.set(lanes[currentLane], 0.75, 0);
-            scene.add(player);
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(5, 10, 7);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-            const road = new THREE.Mesh(new THREE.PlaneGeometry(10, 2000), new THREE.MeshPhongMaterial({color: 0x111}));
+            // Дорога
+            road = new THREE.Mesh(new THREE.PlaneGeometry(10, 1000), new THREE.MeshPhongMaterial({color: 0x333333}));
             road.rotation.x = -Math.PI/2;
             scene.add(road);
 
-            camera.position.set(0, 5, 10);
+            // Игрок
+            player = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({color: 0x00ff00}));
+            player.position.set(lanes[currentLane], 0.5, 0);
+            scene.add(player);
+
+            camera.position.set(0, 5, 8);
             camera.lookAt(0, 0, 0);
 
-            // УПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНА (СВАЙПЫ)
+            // Управление свайпами
             window.addEventListener('touchstart', e => {
-                touchStartX = e.changedTouches[0].screenX;
-                touchStartY = e.changedTouches[0].screenY;
+                touchStart.x = e.touches[0].clientX;
+                touchStart.y = e.touches[0].clientY;
             });
 
             window.addEventListener('touchend', e => {
-                let x = e.changedTouches[0].screenX - touchStartX;
-                let y = e.changedTouches[0].screenY - touchStartY;
-                if (Math.abs(x) > Math.abs(y)) {
-                    if (x > 30 && currentLane < 2) currentLane++;
-                    else if (x < -30 && currentLane > 0) currentLane--;
-                } else {
-                    if (y < -30 && player.position.y <= 0.8) jump();
+                let dx = e.changedTouches[0].clientX - touchStart.x;
+                let dy = e.changedTouches[0].clientY - touchStart.y;
+                if(Math.abs(dx) > Math.abs(dy)) {
+                    if(dx > 30 && currentLane < 2) currentLane++;
+                    if(dx < -30 && currentLane > 0) currentLane--;
+                } else if(dy < -30 && player.position.y <= 0.6) {
+                    jump();
                 }
-            });
-
-            // УПРАВЛЕНИЕ ДЛЯ ПК
-            window.addEventListener('keydown', e => {
-                if(e.key === "ArrowLeft" && currentLane > 0) currentLane--;
-                if(e.key === "ArrowRight" && currentLane < 2) currentLane++;
-                if(e.key === " " && player.position.y <= 0.8) jump();
             });
 
             spawn();
@@ -69,37 +73,38 @@
         }
 
         function jump() {
-            let p = 0.3;
+            let v = 0.25;
             let j = setInterval(() => {
-                player.position.y += p; p -= 0.02;
-                if(player.position.y <= 0.75) { player.position.y = 0.75; clearInterval(j); }
+                player.position.y += v; v -= 0.02;
+                if(player.position.y <= 0.5) { player.position.y = 0.5; clearInterval(j); }
             }, 20);
         }
 
         function spawn() {
             if(isGameOver) return;
-            let lane = lanes[Math.floor(Math.random()*3)];
-            let obj = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 5), new THREE.MeshPhongMaterial({color: 0xff3333}));
-            obj.position.set(lane, 1, -100);
-            scene.add(obj);
-            obstacles.push(obj);
-            setTimeout(spawn, 1000);
+            let obs = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 4), new THREE.MeshPhongMaterial({color: 0xff0000}));
+            obs.position.set(lanes[Math.floor(Math.random()*3)], 1, -100);
+            scene.add(obs);
+            obstacles.push(obs);
+            setTimeout(spawn, 1200);
         }
 
         function animate() {
             if(isGameOver) return;
             requestAnimationFrame(animate);
             player.position.x = THREE.MathUtils.lerp(player.position.x, lanes[currentLane], 0.2);
+            
             obstacles.forEach((o, i) => {
                 o.position.z += speed;
-                if(Math.abs(o.position.z - player.position.z) < 2 && Math.abs(o.position.x - player.position.x) < 1.2 && player.position.y < 2) {
-                    isGameOver = true; alert("GAME OVER! Score: " + score); location.reload();
+                if(Math.abs(o.position.z - player.position.z) < 1.5 && Math.abs(o.position.x - player.position.x) < 1 && player.position.y < 1.5) {
+                    isGameOver = true; alert("Конец! Счет: " + score); location.reload();
                 }
-                if(o.position.z > 15) { scene.remove(o); obstacles.splice(i, 1); score += 10; document.getElementById('score').innerText = score; }
+                if(o.position.z > 10) { scene.remove(o); obstacles.splice(i, 1); score += 10; document.getElementById('ui').innerText = score; }
             });
             renderer.render(scene, camera);
         }
-        init();
+
+        window.onload = init;
     </script>
 </body>
 </html>
