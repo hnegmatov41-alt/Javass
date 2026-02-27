@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐍 Змейка</title>
+    <title>🐍 Змейка - Медленная и четкая</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; /* Убирает серый фон при нажатии */
         }
         
         body {
@@ -17,25 +17,25 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Изменил на flex-start */
+            align-items: flex-start;
             font-family: Arial, sans-serif;
-            padding: 5px; /* Уменьшил отступы */
+            padding: 5px;
         }
         
         .game-container {
             background: white;
             border-radius: 25px;
-            padding: 12px; /* Уменьшил padding */
+            padding: 12px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 420px;
-            margin-top: 5px; /* Добавил отступ сверху */
+            margin-top: 5px;
         }
         
         h1 {
             text-align: center;
             color: #333;
-            font-size: 28px; /* Уменьшил размер */
+            font-size: 28px;
             margin-bottom: 8px;
         }
         
@@ -43,22 +43,22 @@
             display: flex;
             justify-content: space-between;
             background: #f0f0f0;
-            padding: 10px 20px; /* Уменьшил padding */
+            padding: 10px 20px;
             border-radius: 40px;
             margin: 8px 0;
-            font-size: 18px; /* Уменьшил шрифт */
+            font-size: 18px;
             font-weight: bold;
         }
         
         .canvas-wrapper {
             display: flex;
             justify-content: center;
-            margin: 8px 0; /* Уменьшил отступы */
+            margin: 8px 0;
         }
         
         canvas {
             width: 100%;
-            max-width: 320px; /* Уменьшил размер канваса */
+            max-width: 320px;
             height: auto;
             border: 3px solid #4a5568;
             border-radius: 15px;
@@ -67,23 +67,34 @@
         
         .game-controls {
             display: flex;
-            gap: 6px; /* Уменьшил gap */
-            margin: 10px 0; /* Уменьшил отступы */
+            gap: 6px;
+            margin: 10px 0;
         }
         
         .game-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 0; /* Уменьшил padding */
-            font-size: 16px; /* Уменьшил шрифт */
+            padding: 12px 0;
+            font-size: 16px;
             border-radius: 30px;
             cursor: pointer;
             flex: 1;
             font-weight: bold;
+            transition: all 0.1s;
+            /* Улучшение для касания */
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
         }
         
-        /* СТРЕЛКИ - поменьше размер */
+        /* Эффект при нажатии на кнопки управления */
+        .game-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.8);
+        }
+        
+        /* СТРЕЛКИ - с улучшенным откликом */
         .arrow-controls {
             display: flex;
             flex-direction: column;
@@ -91,13 +102,13 @@
             gap: 8px;
             margin: 10px 0 5px;
             background: #e2e8f0;
-            padding: 15px; /* Уменьшил padding */
+            padding: 15px;
             border-radius: 30px;
         }
         
         .arrow-row {
             display: flex;
-            gap: 20px; /* Уменьшил gap */
+            gap: 20px;
             justify-content: center;
         }
         
@@ -105,26 +116,40 @@
             background: #4a5568;
             color: white;
             border: none;
-            width: 70px; /* Уменьшил размер */
-            height: 70px; /* Уменьшил размер */
-            font-size: 40px; /* Уменьшил шрифт */
+            width: 70px;
+            height: 70px;
+            font-size: 40px;
             border-radius: 20px;
             cursor: pointer;
             box-shadow: 0 5px 0 #2d3748;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.05s;
+            /* Улучшение для касания */
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+            /* Плавность */
+            -webkit-transition: all 0.05s;
         }
         
+        /* МГНОВЕННЫЙ эффект при нажатии */
         .arrow-btn:active {
             transform: translateY(5px);
-            box-shadow: none;
+            box-shadow: 0 0 0 #2d3748;
+            background: #2d3748;
+            /* Добавляем свечение */
+            filter: brightness(1.2);
+        }
+        
+        /* Дополнительный эффект для тактильной обратной связи */
+        .arrow-btn.touched {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #2d3748;
+            background: #2d3748;
         }
         
         .hint {
             text-align: center;
             color: #4a5568;
-            font-size: 14px; /* Уменьшил шрифт */
+            font-size: 14px;
             font-weight: bold;
             margin: 5px 0;
         }
@@ -184,13 +209,21 @@
         let gamePaused = false;
         let gameInterval;
         
-        // СКОРОСТЬ - МЕДЛЕННЕЕ (150ms вместо 100ms)
-        const SPEED = 150;
+        // СКОРОСТЬ - ЕЩЁ МЕДЛЕННЕЕ (200ms)
+        const SPEED = 200;
         
         const scoreSpan = document.getElementById('score');
         const highScoreSpan = document.getElementById('highScore');
         let highScore = localStorage.getItem('snakeHighScore') || 0;
         highScoreSpan.textContent = highScore;
+
+        // Функция для визуального эффекта нажатия
+        function addTouchEffect(btn) {
+            btn.classList.add('touched');
+            setTimeout(() => {
+                btn.classList.remove('touched');
+            }, 100);
+        }
 
         function createFood() {
             food = {
@@ -384,23 +417,43 @@
             nextDirection = {x, y};
         }
 
-        // Стрелки
-        document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+        // УЛУЧШЕННЫЕ стрелки с мгновенным откликом
+        const upBtn = document.getElementById('upBtn');
+        const downBtn = document.getElementById('downBtn');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+
+        // Функция для обработки нажатия с эффектом
+        function handleArrowPress(btn, x, y, e) {
             e.preventDefault();
-            setDirection(0, -1);
-        });
-        document.getElementById('downBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setDirection(0, 1);
-        });
-        document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setDirection(-1, 0);
-        });
-        document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            setDirection(1, 0);
-        });
+            e.stopPropagation();
+            
+            // Добавляем визуальный эффект
+            btn.style.transform = 'translateY(5px)';
+            btn.style.boxShadow = 'none';
+            btn.style.background = '#2d3748';
+            
+            // Убираем эффект через 100ms
+            setTimeout(() => {
+                btn.style.transform = '';
+                btn.style.boxShadow = '0 5px 0 #2d3748';
+                btn.style.background = '#4a5568';
+            }, 100);
+            
+            setDirection(x, y);
+        }
+
+        // Touch события для телефона
+        upBtn.addEventListener('touchstart', (e) => handleArrowPress(upBtn, 0, -1, e));
+        downBtn.addEventListener('touchstart', (e) => handleArrowPress(downBtn, 0, 1, e));
+        leftBtn.addEventListener('touchstart', (e) => handleArrowPress(leftBtn, -1, 0, e));
+        rightBtn.addEventListener('touchstart', (e) => handleArrowPress(rightBtn, 1, 0, e));
+
+        // Mouse события для компьютера
+        upBtn.addEventListener('mousedown', (e) => handleArrowPress(upBtn, 0, -1, e));
+        downBtn.addEventListener('mousedown', (e) => handleArrowPress(downBtn, 0, 1, e));
+        leftBtn.addEventListener('mousedown', (e) => handleArrowPress(leftBtn, -1, 0, e));
+        rightBtn.addEventListener('mousedown', (e) => handleArrowPress(rightBtn, 1, 0, e));
 
         // Клавиатура
         document.addEventListener('keydown', (e) => {
@@ -415,19 +468,23 @@
             }
         });
 
+        // Кнопки управления с эффектом
         document.getElementById('startBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             startGame();
         });
+        
         document.getElementById('pauseBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             pauseGame();
         });
+        
         document.getElementById('resetBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             resetGame();
         });
 
+        // Блокировка скролла
         document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
